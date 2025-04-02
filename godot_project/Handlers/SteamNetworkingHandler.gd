@@ -63,6 +63,7 @@ func _on_lobby_created(connect_status: int, this_lobby_id: int) -> void:
 	if connect_status != 1:
 		_net.signal_lobby_created.emit()
 		return
+	prints("Started steam lobby with ID:", this_lobby_id)
 	# Set the lobby ID (will probably use this later)
 	_lobby.lobby_id = this_lobby_id
 	# Set this lobby as joinable, just in case, though this should be done by default
