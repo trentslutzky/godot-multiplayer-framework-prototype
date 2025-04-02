@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://drhfx8cspei6e" path="res://UI/node_main_menu.gd" id="1_80nbo"]
 
-[node name="main_menu" type="Control" node_paths=PackedStringArray("host_button", "join_button", "lobby_joined_label", "players_data_label", "use_steam_checkbox")]
+[node name="main_menu" type="Control" node_paths=PackedStringArray("host_button", "join_button", "lobby_joined_label", "players_data_label", "use_steam_checkbox", "lobby_id_linedit", "main_landing")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -10,27 +10,13 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_80nbo")
-host_button = NodePath("host_button")
-join_button = NodePath("join_button")
+host_button = NodePath("main_landing/host_button")
+join_button = NodePath("main_landing/join_button")
 lobby_joined_label = NodePath("lobby_joined_label")
 players_data_label = NodePath("players_data")
-use_steam_checkbox = NodePath("use_steam_checkbox")
-
-[node name="host_button" type="Button" parent="."]
-layout_mode = 0
-offset_left = 295.0
-offset_top = 287.0
-offset_right = 472.0
-offset_bottom = 322.0
-text = "host"
-
-[node name="join_button" type="Button" parent="."]
-layout_mode = 0
-offset_left = 693.0
-offset_top = 281.0
-offset_right = 870.0
-offset_bottom = 316.0
-text = "join"
+use_steam_checkbox = NodePath("main_landing/use_steam_checkbox")
+lobby_id_linedit = NodePath("main_landing/LineEdit")
+main_landing = NodePath("main_landing")
 
 [node name="lobby_joined_label" type="RichTextLabel" parent="."]
 layout_mode = 0
@@ -38,12 +24,6 @@ offset_left = 466.0
 offset_top = 351.0
 offset_right = 860.0
 offset_bottom = 590.0
-text = "Joined
-players:
-253452345
-23452345
-23452345
-23452345"
 
 [node name="players_data" type="RichTextLabel" parent="."]
 layout_mode = 0
@@ -51,17 +31,43 @@ offset_left = 425.0
 offset_top = 21.0
 offset_right = 819.0
 offset_bottom = 260.0
-text = "Joined
-players:
-253452345
-23452345
-23452345
-23452345"
 
-[node name="use_steam_checkbox" type="CheckBox" parent="."]
+[node name="main_landing" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="host_button" type="Button" parent="main_landing"]
+layout_mode = 0
+offset_left = 295.0
+offset_top = 287.0
+offset_right = 472.0
+offset_bottom = 322.0
+text = "host"
+
+[node name="join_button" type="Button" parent="main_landing"]
+layout_mode = 0
+offset_left = 693.0
+offset_top = 281.0
+offset_right = 870.0
+offset_bottom = 316.0
+text = "join"
+
+[node name="use_steam_checkbox" type="CheckBox" parent="main_landing"]
 layout_mode = 0
 offset_left = 511.0
 offset_top = 220.0
 offset_right = 619.0
 offset_bottom = 251.0
 text = "use steam"
+
+[node name="LineEdit" type="LineEdit" parent="main_landing"]
+layout_mode = 0
+offset_left = 692.0
+offset_top = 324.0
+offset_right = 1031.0
+offset_bottom = 355.0
+placeholder_text = "lobby_id"

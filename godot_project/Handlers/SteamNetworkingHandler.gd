@@ -7,6 +7,10 @@ class_name SteamNetworkingHandler
 func _ready() -> void:
 	Steam.relay_network_status.connect(steam_network_status_change)
 	self.name = "SteamNetworkingHandler"
+	# set up signal for the lobby_joined callback
+	Steam.lobby_joined.connect(_on_lobby_joined)
+	peer = SteamMultiplayerPeer.new()
+	_net.signal_peer_set.emit()
 
 # Was running into the network trying to register before it was "fully?" connected through
 # steam. this waits until it gets a network_status of 100 before joining, which seems to work.
@@ -23,6 +27,7 @@ func steam_network_status_change(
 
 
 func lobby_join(lobby_id_to_join = -1):
+	_net.signal_joining_lobby.emit()
 	if lobby_id_to_join == -1:
 		push_error("[SteamMultiplayerHandler] No lobby ID supplied to lobby_join()")
 		_net.signal_failed_to_join_lobby.emit(-1)
@@ -33,8 +38,6 @@ func lobby_join(lobby_id_to_join = -1):
 	_net.signal_peer_set.emit()
 	# join a lobby
 	Steam.joinLobby(lobby_id_to_join)
-	# set up signal for the lobby_joined callback
-	Steam.lobby_joined.connect(_on_lobby_joined)
 	# tell the peer to connect to the lobby we joined
 	peer.connect_lobby(lobby_id_to_join)
 	# send connected peer to godot multiplayer
@@ -42,6 +45,7 @@ func lobby_join(lobby_id_to_join = -1):
 
 
 func lobby_host():
+	_net.signal_creating_lobby.emit()
 	# init a multiplayer peer object
 	peer = SteamMultiplayerPeer.new()
 	_net.signal_peer_set.emit()
@@ -72,7 +76,6 @@ func _on_lobby_created(connect_status: int, this_lobby_id: int) -> void:
 func _on_lobby_joined(this_lobby_id: int, _permissions: int, _locked: bool, response: int) -> void:
 	# If joining was not successful
 	if response != Steam.CHAT_ROOM_ENTER_RESPONSE_SUCCESS:
-		push_error("steam response not CHAT_ROOM_ENTER_RESPONSE_SUCCESS")
 		# if we weren't successful, call on_lobby_joined with null
 		_net.signal_failed_to_join_lobby.emit(-1)
 		return

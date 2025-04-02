@@ -3,18 +3,23 @@ extends Control
 @onready var _net := NetworkingService
 @onready var _lobby := LobbyService
 
+var lobby_id: String = ""
+
 @export_category("buttons")
 @export var host_button: Button
 @export var join_button: Button
 @export var lobby_joined_label: RichTextLabel
 @export var players_data_label: RichTextLabel
 @export var use_steam_checkbox: CheckBox
+@export var lobby_id_linedit: LineEdit
+@export var main_landing: Control
 
 func _ready() -> void:
 	## connect local signals ##
 	host_button.pressed.connect(_on_host_button_pressed)
 	join_button.pressed.connect(_on_join_button_pressed)
 	use_steam_checkbox.toggled.connect(_use_steam_checkbox_toggled)
+	lobby_id_linedit.text_changed.connect(_lobby_id_linedit_changed)
 	
 	## reset UI elements ##
 	lobby_joined_label.text = ""
@@ -31,9 +36,7 @@ func _ready() -> void:
 
 func _server_disconnected():
 	lobby_joined_label.text = "The lobby closed."
-	host_button.visible = true
-	join_button.visible = true
-	use_steam_checkbox.visible = true
+	main_landing.visible = true
 
 
 func _process(delta: float) -> void:
@@ -45,30 +48,30 @@ func _process(delta: float) -> void:
 
 func _on_joining_lobby():
 	lobby_joined_label.text = "Joining..."
-	host_button.visible = false
-	join_button.visible = false
-	use_steam_checkbox.visible = false
+	main_landing.visible = false
 
 
 func _on_lobby_joined():
 	lobby_joined_label.text = "Joined!"
-	host_button.visible = false
-	join_button.visible = false
-	use_steam_checkbox.visible = false
+	main_landing.visible = false
 
 
 func _lobby_create_or_join_failed(error: int):
 	lobby_joined_label.text = "Failed to join lobby"
-	host_button.visible = true
-	join_button.visible = true
-	use_steam_checkbox.visible = true
+	main_landing.visible = true
 
 
 func _on_host_button_pressed():
 	_net.handler.lobby_host()
 
+
 func _on_join_button_pressed():
-	_net.handler.lobby_join()
+	_net.handler.lobby_join(int(lobby_id))
+
 
 func _use_steam_checkbox_toggled(toggled_on: bool):
 	_net.init_new_networking_handler(toggled_on)
+
+
+func _lobby_id_linedit_changed(text: String):
+	lobby_id = text
