@@ -5,6 +5,8 @@ const DEFAULT_SERVER_IP = "127.0.0.1"  # IPv4 localhost as a placeholder
 const PORT = 7001
 const MAX_PEERS = 4  # can change. set as 4 for testing
 
+@onready var _net := NetworkingService
+
 func _ready() -> void:
 	self.name = "LocalNetworkingHandler"
 
@@ -39,9 +41,10 @@ func lobby_join(_lobby_id = -1) -> void:
 	# if we haven't connected after a second, that means a server
 	# probably isn't running.
 	await get_tree().create_timer(2.0).timeout
-	if peer.get_connection_status() != 2 and joining:
-		_net.signal_failed_to_join_lobby.emit(-1)
-		joining = false
+	if joining:
+		if peer.get_connection_status() != 2:
+			_net.signal_failed_to_join_lobby.emit(-1)
+			joining = false
 
 
 func _process(_delta: float) -> void:

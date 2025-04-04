@@ -2,7 +2,7 @@ extends GenericNetworkingHandler
 class_name SteamNetworkingHandler
 
 @onready var _lobby := LobbyService
-
+@onready var _net := NetworkingService
 
 func _ready() -> void:
 	Steam.relay_network_status.connect(steam_network_status_change)
@@ -72,6 +72,10 @@ func _on_lobby_created(connect_status: int, this_lobby_id: int) -> void:
 	Steam.allowP2PPacketRelay(true)
 	# tell gamestate we connected
 	_net.signal_lobby_created.emit()
+
+
+func _on_steam_lobby_created():
+	print("_on_steam_lobby_created")
 
 
 func _on_lobby_joined(this_lobby_id: int, _permissions: int, _locked: bool, response: int) -> void:

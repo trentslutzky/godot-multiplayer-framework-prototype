@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://drhfx8cspei6e" path="res://UI/node_main_menu.gd" id="1_80nbo"]
 
-[node name="main_menu" type="Control" node_paths=PackedStringArray("host_button", "join_button", "lobby_joined_label", "players_data_label", "use_steam_checkbox", "lobby_id_linedit", "main_landing")]
+[node name="main_menu" type="Control" node_paths=PackedStringArray("host_button", "join_button", "lobby_joined_label", "players_data_label", "use_steam_checkbox", "lobby_id_linedit", "main_landing", "lobby_ui", "leave_lobby_button")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -13,10 +13,12 @@ script = ExtResource("1_80nbo")
 host_button = NodePath("main_landing/host_button")
 join_button = NodePath("main_landing/join_button")
 lobby_joined_label = NodePath("lobby_joined_label")
-players_data_label = NodePath("players_data")
+players_data_label = NodePath("lobby/players_data")
 use_steam_checkbox = NodePath("main_landing/use_steam_checkbox")
 lobby_id_linedit = NodePath("main_landing/LineEdit")
 main_landing = NodePath("main_landing")
+lobby_ui = NodePath("lobby")
+leave_lobby_button = NodePath("lobby/leave_lobby_button")
 
 [node name="lobby_joined_label" type="RichTextLabel" parent="."]
 layout_mode = 0
@@ -24,13 +26,6 @@ offset_left = 466.0
 offset_top = 351.0
 offset_right = 860.0
 offset_bottom = 590.0
-
-[node name="players_data" type="RichTextLabel" parent="."]
-layout_mode = 0
-offset_left = 425.0
-offset_top = 21.0
-offset_right = 819.0
-offset_bottom = 260.0
 
 [node name="main_landing" type="Control" parent="."]
 layout_mode = 1
@@ -71,3 +66,27 @@ offset_top = 324.0
 offset_right = 1031.0
 offset_bottom = 355.0
 placeholder_text = "lobby_id"
+
+[node name="lobby" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="players_data" type="RichTextLabel" parent="lobby"]
+layout_mode = 0
+offset_left = 393.0
+offset_top = 176.0
+offset_right = 787.0
+offset_bottom = 415.0
+mouse_filter = 2
+
+[node name="leave_lobby_button" type="Button" parent="lobby"]
+layout_mode = 0
+offset_left = 507.0
+offset_top = 520.0
+offset_right = 675.0
+offset_bottom = 549.0
+text = "leave lobby"

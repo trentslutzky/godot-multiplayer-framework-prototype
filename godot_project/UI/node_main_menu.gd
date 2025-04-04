@@ -13,6 +13,8 @@ var lobby_id: String = ""
 @export var use_steam_checkbox: CheckBox
 @export var lobby_id_linedit: LineEdit
 @export var main_landing: Control
+@export var lobby_ui: Control
+@export var leave_lobby_button: Button
 
 func _ready() -> void:
 	## connect local signals ##
@@ -20,6 +22,7 @@ func _ready() -> void:
 	join_button.pressed.connect(_on_join_button_pressed)
 	use_steam_checkbox.toggled.connect(_use_steam_checkbox_toggled)
 	lobby_id_linedit.text_changed.connect(_lobby_id_linedit_changed)
+	leave_lobby_button.pressed.connect(_leave_lobby_button_pressed)
 	
 	## reset UI elements ##
 	lobby_joined_label.text = ""
@@ -33,17 +36,30 @@ func _ready() -> void:
 	
 	multiplayer.server_disconnected.connect(_server_disconnected)
 
+	main_landing.visible = true
+	lobby_ui.visible = false
+
 
 func _server_disconnected():
 	lobby_joined_label.text = "The lobby closed."
 	main_landing.visible = true
+	lobby_ui.visible = false
 
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if not _lobby.in_lobby:
 		players_data_label.text = ""
 		return
-	players_data_label.text = "my_peer_id: " + str(multiplayer.get_unique_id()) + "\n" + str(_lobby.players)
+	if _lobby.players_data.has(1):
+		var host_username: String = _lobby.players_data[1].username
+		players_data_label.text = "In " + host_username + "'s lobby.\n\n"
+	else:
+		players_data_label.text = ""
+	players_data_label.text += "peer id: " + str(multiplayer.get_unique_id()) + "\n\n"
+	players_data_label.text += "Players:\n"
+	for player_id in _lobby.players_data:
+		players_data_label.text += _lobby.players_data.get(player_id).username
+		players_data_label.text += "\n"
 
 
 func _on_joining_lobby():
@@ -52,13 +68,15 @@ func _on_joining_lobby():
 
 
 func _on_lobby_joined():
-	lobby_joined_label.text = "Joined!"
+	lobby_joined_label.text = ""
 	main_landing.visible = false
+	lobby_ui.visible = true
 
 
-func _lobby_create_or_join_failed(error: int):
+func _lobby_create_or_join_failed(_error: int):
 	lobby_joined_label.text = "Failed to join lobby"
 	main_landing.visible = true
+	lobby_ui.visible = false
 
 
 func _on_host_button_pressed():
@@ -67,6 +85,10 @@ func _on_host_button_pressed():
 
 func _on_join_button_pressed():
 	_net.handler.lobby_join(int(lobby_id))
+
+
+func _leave_lobby_button_pressed():
+	_lobby.leave_lobby()
 
 
 func _use_steam_checkbox_toggled(toggled_on: bool):

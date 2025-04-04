@@ -1,9 +1,9 @@
 [gd_scene load_steps=3 format=3 uid="uid://kwp86idrwg03"]
 
-[ext_resource type="Script" uid="uid://bpy4muc70m3v6" path="res://Services/LobbyService.gd" id="1_kmh81"]
+[ext_resource type="Script" uid="uid://bpy4muc70m3v6" path="res://Services/Lobby/LobbyService.gd" id="1_kmh81"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_eprct"]
-properties/0/path = NodePath(".:players")
+properties/0/path = NodePath(".:players_data_raw")
 properties/0/spawn = true
 properties/0/replication_mode = 1
 
