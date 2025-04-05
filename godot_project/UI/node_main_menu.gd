@@ -81,8 +81,8 @@ func _on_lobby_created():
 	lobby_ui.visible = true
 
 
-func _lobby_create_or_join_failed(_error: int):
-	lobby_joined_label.text = "Failed to join lobby"
+func _lobby_create_or_join_failed(error_text: String):
+	lobby_joined_label.text = "Failed: " + error_text
 	main_landing.visible = true
 	lobby_ui.visible = false
 

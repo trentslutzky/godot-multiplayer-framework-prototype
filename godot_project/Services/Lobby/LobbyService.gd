@@ -5,7 +5,7 @@ const MAX_PLAYERS = 8
 var lobby_id: int = -1
 var in_lobby: bool = false
 var is_host: bool = false
-var using_steam: bool = false
+var using_steam: bool = true
 
 @export var players_data_raw: Dictionary[int, Dictionary]
 var last_players_data_raw: Dictionary[int, Dictionary]

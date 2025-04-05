@@ -13,7 +13,7 @@ func _ready() -> void:
 func join_lobby(lobby_id_to_join = -1):
 	joining = true
 	_lobby.joining_lobby.emit()
-	_lobby.steam_lobby_members.clear()
+	_lobby.steam_usernames.clear()
 	Steam.joinLobby(lobby_id_to_join)
 
 
@@ -21,7 +21,7 @@ func create_lobby():
 	if creating: return
 	creating = true
 	_lobby.creating_lobby.emit()
-	Steam.createLobby(Steam.LOBBY_TYPE_FRIENDS_ONLY, _lobby.MAX_PLAYERS)
+	peer.create_lobby(Steam.LOBBY_TYPE_FRIENDS_ONLY, _lobby.MAX_PLAYERS)
 
 
 func _on_lobby_created(connect_status: int, this_lobby_id: int) -> void:
@@ -36,20 +36,19 @@ func _on_lobby_created(connect_status: int, this_lobby_id: int) -> void:
 
 func _on_lobby_joined(this_lobby_id: int, _permissions: int, _locked: bool, response: int) -> void:
 	prints("_on_lobby_joined", this_lobby_id)
-	if joining:
-		joining = false
-		_lobby.joined_lobby.emit()
 	# If joining was successful
 	if response == Steam.CHAT_ROOM_ENTER_RESPONSE_SUCCESS:
+		if joining:
+			joining = false
+			_lobby.joined_lobby.emit()
+		if creating:
+			creating = false
+			_lobby.created_lobby.emit()
 		# Set this lobby ID as your lobby ID
 		_lobby.lobby_id = this_lobby_id
-
+		multiplayer.multiplayer_peer = peer
 		# Get the lobby members
 		get_lobby_members()
-
-		# Make the initial handshake
-		# make_p2p_handshake()
-		# Else it failed for some reason
 	else:
 		# Get the failure reason
 		var fail_reason: String
@@ -66,7 +65,13 @@ func _on_lobby_joined(this_lobby_id: int, _permissions: int, _locked: bool, resp
 			Steam.CHAT_ROOM_ENTER_RESPONSE_MEMBER_BLOCKED_YOU: fail_reason = "A user in the lobby has blocked you from joining."
 			Steam.CHAT_ROOM_ENTER_RESPONSE_YOU_BLOCKED_MEMBER: fail_reason = "A user you have blocked is in the lobby."
 
-		push_warning("Failed to join this chat room: %s" % fail_reason)
+		if joining:
+			joining = false
+			_lobby.failed_to_join_lobby.emit(fail_reason)
+
+		if creating:
+			creating = false
+			_lobby.failed_to_create_lobby.emit(fail_reason)
 
 
 # grabs steam information for players in the steam lobby
