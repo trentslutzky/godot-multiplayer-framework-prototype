@@ -9,6 +9,7 @@ properties/0/replication_mode = 1
 
 [node name="LobbyController" type="Node"]
 script = ExtResource("1_kmh81")
+players_data_raw = null
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_eprct")

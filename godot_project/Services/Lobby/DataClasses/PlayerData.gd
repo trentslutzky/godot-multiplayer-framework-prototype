@@ -5,14 +5,14 @@ class_name PlayerData
 @export var steam_id: int = -1
 @export var username: String = ""
 
+@onready var _lobby := LobbyService
+
 func initialize(_peer_id: int, _username: String):
 	self.peer_id = _peer_id
 	self.username = _username
 	
-	var _net := NetworkingService
-	if _net.handler.peer:
-		if _net.handler.peer is SteamMultiplayerPeer:
-			self.steam_id = _net.handler.peer.get_steam64_from_peer_id(_peer_id)
+#	if _lobby.using_steam:
+#		self.steam_id = _lobby.handler.peer.get_steam64_from_peer_id(_peer_id)
 
 
 func serialize() -> Dictionary[String, Variant]:

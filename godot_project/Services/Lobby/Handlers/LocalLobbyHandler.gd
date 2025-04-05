@@ -1,41 +1,39 @@
-extends GenericNetworkingHandler
-class_name LocalNetworkingHandler
+extends GenericLobbyHandler
+class_name LocalLobbyHandler
 
 const DEFAULT_SERVER_IP = "127.0.0.1"  # IPv4 localhost as a placeholder
 const PORT = 7001
-const MAX_PEERS = 4  # can change. set as 4 for testing
 
-@onready var _net := NetworkingService
+@onready var _lobby := LobbyService
 
 func _ready() -> void:
 	self.name = "LocalNetworkingHandler"
+	peer = ENetMultiplayerPeer.new()
 
 # starts a lobby (using localhost)
-func lobby_host() -> void:
-	_net.signal_creating_lobby.emit()
-	peer = ENetMultiplayerPeer.new()
-	_net.signal_peer_set.emit()
+func create_lobby() -> void:
+	_lobby.creating_lobby.emit()
 	# init a multiplayer peer object
-	var error = peer.create_server(PORT, MAX_PEERS)
+	var error = peer.create_server(PORT, _lobby.MAX_PLAYERS)
 	if error:
-		push_warning(error)
-		_net.signal_failed_to_create_lobby.emit(error)
-		return
+		if error != ERR_ALREADY_IN_USE:
+			push_warning(error)
+			_lobby.failed_to_create_lobby.emit(error)
+			return
 	# set the local peer to initialized peer
 	multiplayer.multiplayer_peer = peer
-	_net.signal_lobby_created.emit()
+	_lobby.created_lobby.emit()
 
 
-func lobby_join(_lobby_id = -1) -> void:
-	_net.signal_joining_lobby.emit()
-	peer = ENetMultiplayerPeer.new()
-	_net.signal_peer_set.emit()
+func join_lobby(_lobby_id = -1) -> void:
+	_lobby.joining_lobby.emit()
 	# init a multiplayer peer object
 	var error = peer.create_client(DEFAULT_SERVER_IP, PORT)
 	if error:
-		push_warning(error)
-		_net.signal_failed_to_join_lobby.emit(error)
-		return
+		if error != ERR_ALREADY_IN_USE:
+			push_warning(error)
+			_lobby.failed_to_join_lobby.emit(error)
+			return
 	multiplayer.multiplayer_peer = peer
 	joining = true
 	# if we haven't connected after a second, that means a server
@@ -43,7 +41,7 @@ func lobby_join(_lobby_id = -1) -> void:
 	await get_tree().create_timer(2.0).timeout
 	if joining:
 		if peer.get_connection_status() != 2:
-			_net.signal_failed_to_join_lobby.emit(-1)
+			_lobby.failed_to_join_lobby.emit(-1)
 			joining = false
 
 
@@ -52,4 +50,4 @@ func _process(_delta: float) -> void:
 		if peer.get_connection_status() == 2:
 			joined = true
 			joining = false
-			_net.signal_lobby_joined.emit()
+			_lobby.joined_lobby.emit()

@@ -17,7 +17,6 @@ config/icon="res://Assets/icon.svg"
 
 [autoload]
 
-NetworkingService="*res://Services/Networking/NetworkingService.gd"
 LobbyService="*res://Services/Lobby/Scenes/LobbyService.tscn"
 SteamService="*res://Services/Steam/SteamService.gd"
 

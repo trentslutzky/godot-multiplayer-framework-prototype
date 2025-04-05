@@ -6,9 +6,10 @@ var is_on_steam_deck: bool = false
 var is_online: bool = false
 var is_owned: bool = false
 var steam_app_id: int = 480
-var steam_id: int = 0
+var steam_id: int = -1
 var steam_username: String = ""
 
+signal initialized
 
 func _init() -> void:
 	# Set your game's Steam app ID here
@@ -42,6 +43,8 @@ func _initialize_steam() -> void:
 	# Check if account owns the game
 	if !is_owned:
 		push_error("User does not own this game!")
+	
+	initialized.emit()
 
 
 func get_friends_in_lobbies() -> Dictionary:

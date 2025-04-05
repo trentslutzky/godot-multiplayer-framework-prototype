@@ -1,10 +1,11 @@
 extends Node
-class_name GenericNetworkingHandler
+class_name GenericLobbyHandler
 
 var peer: MultiplayerPeer
 
 var joined: bool = false
 var joining: bool = false
+var creating: bool = false
 
 
 func reset():
@@ -13,9 +14,9 @@ func reset():
 	peer = null
 
 
-func lobby_host() -> void:
+func create_lobby() -> void:
 	pass
 
 
-func lobby_join(_lobby_id = -1) -> void:
+func join_lobby(_lobby_id = -1) -> void:
 	pass
