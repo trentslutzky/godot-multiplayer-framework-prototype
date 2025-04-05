@@ -1,13 +1,12 @@
 extends GenericLobbyHandler
 class_name SteamLobbyHandler
 
-@onready var _lobby := LobbyService
 
 func _ready() -> void:
 	self.name = "SteamNetworkingHandler"
 	peer = SteamMultiplayerPeer.new()
-	peer.lobby_created.connect(_on_lobby_created)
-	peer.lobby_joined.connect(_on_lobby_joined)
+	Steam.lobby_created.connect(_on_lobby_created)
+	#Steam.lobby_joined.connect(_on_lobby_joined)
 
 
 func join_lobby(lobby_id_to_join = -1):

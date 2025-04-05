@@ -4,8 +4,6 @@ class_name LocalLobbyHandler
 const DEFAULT_SERVER_IP = "127.0.0.1"  # IPv4 localhost as a placeholder
 const PORT = 7001
 
-@onready var _lobby := LobbyService
-
 func _ready() -> void:
 	self.name = "LocalNetworkingHandler"
 	peer = ENetMultiplayerPeer.new()
@@ -43,11 +41,3 @@ func join_lobby(_lobby_id = -1) -> void:
 		if peer.get_connection_status() != 2:
 			_lobby.failed_to_join_lobby.emit(-1)
 			joining = false
-
-
-func _process(_delta: float) -> void:
-	if not joined and joining:
-		if peer.get_connection_status() == 2:
-			joined = true
-			joining = false
-			_lobby.joined_lobby.emit()
