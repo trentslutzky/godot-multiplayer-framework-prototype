@@ -37,6 +37,7 @@ func _ready() -> void:
 	joined_lobby.connect(_lobby_joined)
 	created_lobby.connect(_lobby_created)
 	_steam.initialized.connect(_steam_initialized)
+	my_player_data.username = "player_"+str(randi_range(8000, 9000))
 
 
 func _steam_initialized():
@@ -48,10 +49,8 @@ func init_new_lobby_handler(use_steam: bool):
 	if handler != null:
 		handler.queue_free()
 	if use_steam:
-		my_player_data.username = SteamService.steam_username
 		handler = SteamLobbyHandler.new() 
 	else:
-		my_player_data.username = "player_"+str(randi_range(8000, 9000))
 		handler = LocalLobbyHandler.new()
 	add_child(handler)
 
@@ -84,12 +83,14 @@ func _server_disconnected():
 
 
 func _lobby_created():
+	prints("_lobby_created", multiplayer.get_unique_id())
 	is_host = true
 	in_lobby = true
 	_register_self()
 
 
 func _lobby_joined():
+	prints("_lobby_joined", multiplayer.get_unique_id())
 	is_host = false
 	in_lobby = true
 	_register_self()
@@ -111,10 +112,10 @@ func _register_player(player_raw_data: Dictionary[String, Variant]):
 	var remote_sender_id = multiplayer.get_remote_sender_id()
 	var new_player_data = PlayerData.deserialize(player_raw_data)
 	new_player_data.peer_id = remote_sender_id
-	if using_steam:
-		handler.get_lobby_members()
 	players_data_raw.set(remote_sender_id, new_player_data.serialize())
 	players_data.set(remote_sender_id, new_player_data)
+	if using_steam:
+		handler.get_lobby_members()
 
 
 func _reset():

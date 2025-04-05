@@ -14,7 +14,7 @@ func join_lobby(lobby_id_to_join = -1):
 	joining = true
 	_lobby.joining_lobby.emit()
 	_lobby.steam_usernames.clear()
-	Steam.joinLobby(lobby_id_to_join)
+	peer.connect_lobby(lobby_id_to_join)
 
 
 func create_lobby():
@@ -30,7 +30,7 @@ func _on_lobby_created(connect_status: int, this_lobby_id: int) -> void:
 	if connect_status != 1: return
 	_lobby.lobby_id = this_lobby_id
 	Steam.setLobbyJoinable(this_lobby_id, true)
-	var set_relay: bool = Steam.allowP2PPacketRelay(true)
+	Steam.allowP2PPacketRelay(true)
 	_lobby.created_lobby.emit()
 
 
@@ -38,15 +38,14 @@ func _on_lobby_joined(this_lobby_id: int, _permissions: int, _locked: bool, resp
 	prints("_on_lobby_joined", this_lobby_id)
 	# If joining was successful
 	if response == Steam.CHAT_ROOM_ENTER_RESPONSE_SUCCESS:
+		_lobby.lobby_id = this_lobby_id
+		multiplayer.multiplayer_peer = peer
 		if joining:
 			joining = false
 			_lobby.joined_lobby.emit()
 		if creating:
 			creating = false
 			_lobby.created_lobby.emit()
-		# Set this lobby ID as your lobby ID
-		_lobby.lobby_id = this_lobby_id
-		multiplayer.multiplayer_peer = peer
 		# Get the lobby members
 		get_lobby_members()
 	else:
@@ -86,9 +85,13 @@ func get_lobby_members() -> void:
 		var member_steam_name: String = Steam.getFriendPersonaName(member_steam_id)
 		# Add them to the list
 		_lobby.steam_usernames.set(member_steam_id, member_steam_name)
+		
+		for player_peer_id in _lobby.players_data:
+			if _lobby.players_data[player_peer_id].steam_id == member_steam_id:
+				_lobby.players_data[player_peer_id].username = member_steam_name
 
 
 # A user's information has changed. Steam will call this periodically
-func _on_persona_change(this_steam_id: int, _flag: int) -> void:
+func _on_persona_change(_this_steam_id: int, _flag: int) -> void:
 	if _lobby.lobby_id == -1: return
 	get_lobby_members()
