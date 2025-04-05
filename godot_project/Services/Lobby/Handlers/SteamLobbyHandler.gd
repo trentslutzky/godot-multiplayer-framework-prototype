@@ -6,8 +6,8 @@ class_name SteamLobbyHandler
 func _ready() -> void:
 	self.name = "SteamNetworkingHandler"
 	peer = SteamMultiplayerPeer.new()
-	Steam.lobby_created.connect(_on_lobby_created)
-	Steam.lobby_joined.connect(_on_lobby_joined)
+	peer.lobby_created.connect(_on_lobby_created)
+	peer.lobby_joined.connect(_on_lobby_joined)
 
 
 func join_lobby(lobby_id_to_join = -1):
@@ -29,13 +29,12 @@ func _on_lobby_created(connect_status: int, this_lobby_id: int) -> void:
 	creating = false
 	if connect_status != 1: return
 	_lobby.lobby_id = this_lobby_id
-	Steam.setLobbyJoinable(this_lobby_id, true)
-	Steam.allowP2PPacketRelay(true)
+	peer.set_lobby_joinable(true)
 	_lobby.created_lobby.emit()
 
 
 func _on_lobby_joined(this_lobby_id: int, _permissions: int, _locked: bool, response: int) -> void:
-	prints("_on_lobby_joined", this_lobby_id)
+	prints("_on_lobby_joined", this_lobby_id, response)
 	# If joining was successful
 	if response == Steam.CHAT_ROOM_ENTER_RESPONSE_SUCCESS:
 		_lobby.lobby_id = this_lobby_id
