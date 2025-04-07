@@ -1,6 +1,5 @@
 extends Node
 
-var steam_usernames: Dictionary[int, String]
 var friends_lobby_ids: Dictionary[int, int]
 
 # Steam variables
@@ -74,16 +73,12 @@ func get_friends_in_lobbies() -> void:
 				continue
 
 			results[fetched_steam_id] = lobby
-			
-			var member_steam_name: String = Steam.getFriendPersonaName(fetched_steam_id)
-			steam_usernames.set(fetched_steam_id, member_steam_name)
 
 	friends_lobby_ids = results
 	friends_lobby_list_updated.emit()
 
 # grabs steam information for players in the steam lobby
 func get_lobby_members() -> void:
-	steam_usernames.clear()
 	var num_members: int = Steam.getNumLobbyMembers(_lobby.lobby_id)
 	# Get the data of these players from Steam
 	for this_member in range(0, num_members):
@@ -93,13 +88,9 @@ func get_lobby_members() -> void:
 		var member_steam_name: String = Steam.getFriendPersonaName(member_steam_id)
 		# Kick off a request for the member's Steam avatar
 		Steam.getMediumFriendAvatar(member_steam_id)
-		# Add them to the list
-		steam_usernames.set(member_steam_id, member_steam_name)
-		
-		for player_peer_id in _lobby.players_data:
-			if _lobby.players_data[player_peer_id]["steam_id"] == member_steam_id:
-				_lobby.players_data[player_peer_id]["steam_id"] = member_steam_name
+
 		for player_peer_id in _lobby.players_data_raw:
-			if _lobby.players_data_raw[player_peer_id]["steam_id"] == member_steam_id:
-				_lobby.players_data_raw[player_peer_id]["steam_id"] = member_steam_name
+			if str(_lobby.players_data_raw[player_peer_id]["steam_id"]) == str(member_steam_id):
+				_lobby.players_data_raw[player_peer_id]["username"] = member_steam_name
+				_lobby.players_data[player_peer_id].username = member_steam_name
 		
