@@ -1,42 +1,44 @@
 extends Control
 
 @onready var _lobby := LobbyService
-
-var lobby_id: String = ""
+@onready var _steam := SteamService
 
 @export_category("buttons")
 @export var host_button: Button
 @export var join_button: Button
 @export var lobby_joined_label: RichTextLabel
 @export var players_data_label: RichTextLabel
-@export var use_steam_checkbox: CheckBox
-@export var lobby_id_linedit: LineEdit
 @export var main_landing: Control
 @export var lobby_ui: Control
 @export var leave_lobby_button: Button
+@export var friend_lobby_button_vbox: VBoxContainer
 
 func _ready() -> void:
 	## connect local signals ##
 	host_button.pressed.connect(_on_host_button_pressed)
 	join_button.pressed.connect(_on_join_button_pressed)
-	use_steam_checkbox.toggled.connect(_use_steam_checkbox_toggled)
-	lobby_id_linedit.text_changed.connect(_lobby_id_linedit_changed)
 	leave_lobby_button.pressed.connect(_leave_lobby_button_pressed)
 	
 	## reset UI elements ##
 	lobby_joined_label.text = ""
 
+	## connect to external signals ##
 	_lobby.joining_lobby.connect(_on_joining_lobby)
 	_lobby.creating_lobby.connect(_on_creating_lobby)
 	_lobby.created_lobby.connect(_on_lobby_created)
 	_lobby.joined_lobby.connect(_on_lobby_joined)
 	_lobby.failed_to_join_lobby.connect(_lobby_create_or_join_failed)
 	_lobby.failed_to_create_lobby.connect(_lobby_create_or_join_failed)
-	
 	multiplayer.server_disconnected.connect(_server_disconnected)
+	_steam.friends_lobby_list_updated.connect(_steam_friends_lobby_list_updated)
 
 	main_landing.visible = true
 	lobby_ui.visible = false
+	
+	join_button.visible = !_lobby.using_steam
+	friend_lobby_button_vbox.visible = _lobby.using_steam
+	
+	_steam_friends_lobby_list_updated()
 
 
 func _server_disconnected():
@@ -92,16 +94,22 @@ func _on_host_button_pressed():
 
 
 func _on_join_button_pressed():
-	_lobby.handler.join_lobby(int(lobby_id))
+	_lobby.handler.join_lobby()
 
 
 func _leave_lobby_button_pressed():
 	_lobby.leave_lobby()
 
 
-func _use_steam_checkbox_toggled(toggled_on: bool):
-	_lobby.init_new_lobby_handler(toggled_on)
-
-
-func _lobby_id_linedit_changed(text: String):
-	lobby_id = text
+func _steam_friends_lobby_list_updated():
+	for child in friend_lobby_button_vbox.get_children():
+		child.queue_free()
+	var friends_lobby_ids := _steam.friends_lobby_ids
+	for friend_steam_id in friends_lobby_ids:
+		var steam_lobby_id = friends_lobby_ids[friend_steam_id]
+		var steam_username = _steam.steam_usernames.get(friend_steam_id, str(friend_steam_id))
+		var new_button_scene = load("res://UI/join_steam_friend_lobby_button.tscn")
+		var new_button = new_button_scene.instantiate()
+		new_button.steam_username = steam_username
+		new_button.steam_lobby_id = steam_lobby_id
+		friend_lobby_button_vbox.add_child(new_button)

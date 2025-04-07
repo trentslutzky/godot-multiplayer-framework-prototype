@@ -1,5 +1,8 @@
 extends Node
 
+var steam_usernames: Dictionary[int, String]
+var friends_lobby_ids: Dictionary[int, int]
+
 # Steam variables
 var initializing: bool = true
 var is_on_steam_deck: bool = false
@@ -10,6 +13,9 @@ var steam_id: int = -1
 var steam_username: String = ""
 
 signal initialized
+signal friends_lobby_list_updated
+
+@onready var _lobby := LobbyService
 
 func _init() -> void:
 	# Set your game's Steam app ID here
@@ -45,10 +51,11 @@ func _initialize_steam() -> void:
 		push_error("User does not own this game!")
 	
 	initialized.emit()
+	get_friends_in_lobbies()
 
 
-func get_friends_in_lobbies() -> Dictionary:
-	var results: Dictionary = {}
+func get_friends_in_lobbies() -> void:
+	var results: Dictionary[int, int] = {}
 
 	for i in range(0, Steam.getFriendCount()):
 		var fetched_steam_id: int = Steam.getFriendByIndex(i, Steam.FRIEND_FLAG_IMMEDIATE)
@@ -67,5 +74,28 @@ func get_friends_in_lobbies() -> Dictionary:
 				continue
 
 			results[fetched_steam_id] = lobby
+			
+			var member_steam_name: String = Steam.getFriendPersonaName(fetched_steam_id)
+			steam_usernames.set(fetched_steam_id, member_steam_name)
 
-	return results
+	friends_lobby_ids = results
+	friends_lobby_list_updated.emit()
+
+# grabs steam information for players in the steam lobby
+func get_lobby_members() -> void:
+	steam_usernames.clear()
+	var num_members: int = Steam.getNumLobbyMembers(_lobby.lobby_id)
+	# Get the data of these players from Steam
+	for this_member in range(0, num_members):
+		# Get the member's Steam ID
+		var member_steam_id: int = Steam.getLobbyMemberByIndex(_lobby.lobby_id, this_member)
+		# Get the member's Steam name
+		var member_steam_name: String = Steam.getFriendPersonaName(member_steam_id)
+		# Kick off a request for the member's Steam avatar
+		Steam.getMediumFriendAvatar(member_steam_id)
+		# Add them to the list
+		steam_usernames.set(member_steam_id, member_steam_name)
+		
+		for player_peer_id in _lobby.players_data:
+			if _lobby.players_data[player_peer_id].steam_id == member_steam_id:
+				_lobby.players_data[player_peer_id].username = member_steam_name

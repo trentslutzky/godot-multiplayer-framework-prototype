@@ -5,15 +5,12 @@ const MAX_PLAYERS = 8
 var lobby_id: int = -1
 var in_lobby: bool = false
 var is_host: bool = false
-var using_steam: bool = true
+@onready var using_steam: bool = OS.has_feature("steam")
 
 @export var players_data_raw: Dictionary[int, Dictionary]
-var last_players_data_raw: Dictionary[int, Dictionary]
 var players_data: Dictionary[int, PlayerData]
 
 var handler: GenericLobbyHandler
-
-var steam_usernames: Dictionary[int, String]
 
 @onready var _sync := $MultiplayerSynchronizer
 @onready var _steam := SteamService
@@ -28,41 +25,26 @@ signal created_lobby
 signal failed_to_create_lobby(error_text: String)
 
 func _ready() -> void:
-	## initialize handler ##
-	init_new_lobby_handler(false)
 	## connect signals ##
 	multiplayer.peer_disconnected.connect(_peer_disconnected)
 	multiplayer.server_disconnected.connect(_server_disconnected)
-	_sync.synchronized.connect(_synchronized)
+	multiplayer.peer_connected.connect(_peer_connected)
+	_sync.delta_synchronized.connect(_populate_player_data_objects)
 	joined_lobby.connect(_lobby_joined)
 	created_lobby.connect(_lobby_created)
 	_steam.initialized.connect(_steam_initialized)
+	
 	my_player_data.username = "player_"+str(randi_range(8000, 9000))
 
 
 func _steam_initialized():
 	my_player_data.steam_id = SteamService.steam_id
-
-
-func init_new_lobby_handler(use_steam: bool):
-	using_steam = use_steam
-	if handler != null:
-		handler.queue_free()
-	if use_steam:
-		handler = SteamLobbyHandler.new() 
-	else:
-		handler = LocalLobbyHandler.new()
+	## initialize handler ##
+	handler = SteamLobbyHandler.new() if OS.has_feature("steam") else LocalLobbyHandler.new()
 	add_child(handler)
 
 
-func _synchronized():
-	_populate_player_data_objects()
-
-
 func _populate_player_data_objects():
-	if players_data_raw == last_players_data_raw:
-		return
-	last_players_data_raw = players_data_raw
 	for player_id in players_data_raw:
 		var raw_player_data = players_data_raw.get(player_id)
 		var player_data_object: PlayerData = PlayerData.deserialize(raw_player_data)
@@ -80,6 +62,10 @@ func _peer_disconnected(peer_id: int):
 
 func _server_disconnected():
 	_reset()
+
+
+func _peer_connected(peer_id: int):
+	prints("_peer_connected:", peer_id)
 
 
 func _lobby_created():
@@ -108,14 +94,13 @@ func leave_lobby() -> void:
 
 @rpc("any_peer", "call_local", "reliable")
 func _register_player(player_raw_data: Dictionary[String, Variant]):
-	if not multiplayer.is_server(): return
 	var remote_sender_id = multiplayer.get_remote_sender_id()
 	var new_player_data = PlayerData.deserialize(player_raw_data)
 	new_player_data.peer_id = remote_sender_id
 	players_data_raw.set(remote_sender_id, new_player_data.serialize())
 	players_data.set(remote_sender_id, new_player_data)
 	if using_steam:
-		handler.get_lobby_members()
+		_steam.get_lobby_members()
 
 
 func _reset():
@@ -124,4 +109,3 @@ func _reset():
 	lobby_id = -1
 	players_data = {}
 	players_data_raw = {}
-	init_new_lobby_handler(using_steam)
