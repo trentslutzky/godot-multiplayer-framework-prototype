@@ -69,7 +69,7 @@ func get_friends_in_lobbies() -> void:
 			var app_id: int = game_info["id"]
 			var lobby = game_info["lobby"]
 
-			if app_id != Steam.getAppID() or lobby is String:
+			if app_id != Steam.getAppID() or lobby is String or lobby == 0:
 				# Either not in this game, or not in a lobby
 				continue
 
@@ -97,5 +97,9 @@ func get_lobby_members() -> void:
 		steam_usernames.set(member_steam_id, member_steam_name)
 		
 		for player_peer_id in _lobby.players_data:
-			if _lobby.players_data[player_peer_id].steam_id == member_steam_id:
-				_lobby.players_data[player_peer_id].username = member_steam_name
+			if _lobby.players_data[player_peer_id]["steam_id"] == member_steam_id:
+				_lobby.players_data[player_peer_id]["steam_id"] = member_steam_name
+		for player_peer_id in _lobby.players_data_raw:
+			if _lobby.players_data_raw[player_peer_id]["steam_id"] == member_steam_id:
+				_lobby.players_data_raw[player_peer_id]["steam_id"] = member_steam_name
+		

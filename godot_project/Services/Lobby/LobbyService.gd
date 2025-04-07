@@ -24,6 +24,8 @@ signal creating_lobby
 signal created_lobby
 signal failed_to_create_lobby(error_text: String)
 
+signal connected_to_lobby
+
 func _ready() -> void:
 	## connect signals ##
 	multiplayer.peer_disconnected.connect(_peer_disconnected)
@@ -45,6 +47,7 @@ func _steam_initialized():
 
 
 func _populate_player_data_objects():
+	print("_populate_player_data_objects")
 	for player_id in players_data_raw:
 		var raw_player_data = players_data_raw.get(player_id)
 		var player_data_object: PlayerData = PlayerData.deserialize(raw_player_data)
@@ -55,6 +58,7 @@ func _populate_player_data_objects():
 
 
 func _peer_disconnected(peer_id: int):
+	prints("_peer_disconnected:", peer_id)
 	if not is_multiplayer_authority(): return
 	players_data_raw.erase(peer_id)
 	players_data.erase(peer_id)
@@ -66,6 +70,9 @@ func _server_disconnected():
 
 func _peer_connected(peer_id: int):
 	prints("_peer_connected:", peer_id)
+	if peer_id == 1:
+		_register_self()
+		connected_to_lobby.emit()
 
 
 func _lobby_created():
@@ -79,7 +86,6 @@ func _lobby_joined():
 	prints("_lobby_joined", multiplayer.get_unique_id())
 	is_host = false
 	in_lobby = true
-	_register_self()
 
 
 func _register_self():

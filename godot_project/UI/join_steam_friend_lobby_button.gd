@@ -7,6 +7,7 @@ var steam_lobby_id: int
 
 func _ready() -> void:
 	text = steam_username
+	prints(steam_username, steam_lobby_id)
 	
 func _pressed():
 	_lobby.handler.join_lobby(steam_lobby_id)
