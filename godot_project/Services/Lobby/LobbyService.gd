@@ -31,7 +31,7 @@ func _ready() -> void:
 	multiplayer.peer_disconnected.connect(_peer_disconnected)
 	multiplayer.server_disconnected.connect(_server_disconnected)
 	multiplayer.peer_connected.connect(_peer_connected)
-	_sync.delta_synchronized.connect(_populate_player_data_objects)
+	_sync.synchronized.connect(_populate_player_data_objects)
 	joined_lobby.connect(_lobby_joined)
 	created_lobby.connect(_lobby_created)
 	_steam.initialized.connect(_steam_initialized)

@@ -1,5 +1,6 @@
 extends Node
 
+var steam_usernames: Dictionary[int, String]
 var friends_lobby_ids: Dictionary[int, int]
 
 # Steam variables
@@ -50,6 +51,7 @@ func _initialize_steam() -> void:
 		push_error("User does not own this game!")
 	
 	initialized.emit()
+	Steam.getCertificateRequest()
 	get_friends_in_lobbies()
 
 
@@ -73,6 +75,8 @@ func get_friends_in_lobbies() -> void:
 				continue
 
 			results[fetched_steam_id] = lobby
+			var member_steam_name: String = Steam.getFriendPersonaName(fetched_steam_id)
+			steam_usernames[fetched_steam_id] = member_steam_name
 
 	friends_lobby_ids = results
 	friends_lobby_list_updated.emit()
@@ -93,4 +97,5 @@ func get_lobby_members() -> void:
 			if str(_lobby.players_data_raw[player_peer_id]["steam_id"]) == str(member_steam_id):
 				_lobby.players_data_raw[player_peer_id]["username"] = member_steam_name
 				_lobby.players_data[player_peer_id].username = member_steam_name
+			steam_usernames[player_peer_id] = member_steam_name
 		
