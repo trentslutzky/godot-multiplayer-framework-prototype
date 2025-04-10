@@ -119,13 +119,14 @@ func _register_self() -> void:
 
 
 func leave_lobby() -> void:
+	_im_leaving_the_match.rpc()
 	Steam.leaveLobby(lobby_id)
 	handler.close_peer()
 	_reset()
 	left_lobby.emit()
-	_im_leaving_the_match.rpc()
 
-
+# seems like we need this for now because steam doesn't trigger a 
+# disconnect when you leave the lobby
 @rpc("any_peer", "call_remote", "reliable")
 func _im_leaving_the_match() -> void:
 	var peer_id: int = multiplayer.get_remote_sender_id()
