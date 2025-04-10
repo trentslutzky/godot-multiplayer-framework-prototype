@@ -7,5 +7,4 @@ func host_start_game() -> void:
 
 @rpc("authority", "call_local", "reliable")
 func _start_game() -> void:
-	print("GAME STARTING....")
-	game_starting.emit()
+	get_tree().change_scene_to_file("res://game.tscn")
