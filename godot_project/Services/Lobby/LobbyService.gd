@@ -123,8 +123,10 @@ func leave_lobby() -> void:
 	handler.close_peer()
 	_reset()
 	left_lobby.emit()
+	_im_leaving_the_match.rpc()
 
 
+@rpc("any_peer", "call_remote", "reliable")
 func _im_leaving_the_match() -> void:
 	var peer_id: int = multiplayer.get_remote_sender_id()
 	players_data_raw.erase(peer_id)
