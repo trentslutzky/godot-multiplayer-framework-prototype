@@ -12,4 +12,5 @@ func _on_steam_avatar_loaded(steam_id: int, in_texture: ImageTexture):
 		texture = in_texture
 
 func reload():
-	texture = _steam.steam_avatars.get(my_steam_id, null)
+	if my_steam_id in _steam.steam_avatars:
+		texture = _steam.steam_avatars.get(my_steam_id, null)

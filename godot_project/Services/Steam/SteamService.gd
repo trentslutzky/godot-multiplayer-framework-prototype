@@ -37,7 +37,7 @@ func _process(_delta: float) -> void:
 
 
 func _initialize_steam() -> void:
-	var initialize_response: Dictionary = Steam.steamInitEx()
+	var initialize_response: Dictionary = Steam.steamInit()
 
 	if initialize_response["status"] > 0:
 		push_error("Failed to initialize Steam. Shutting down. %s" % initialize_response)
