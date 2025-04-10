@@ -18,6 +18,7 @@ func join_lobby(lobby_id_to_join: int = -1) -> void:
 	joining_lobby.emit()
 	var error: Error = peer.connect_lobby(lobby_id_to_join)
 	if error:
+		joining = false
 		push_warning("Error joining steam lobby", error)
 		failed_to_create_or_join.emit("Failed to join lobby")
 		return
@@ -29,6 +30,7 @@ func create_lobby() -> void:
 	creating_lobby.emit()
 	var error: Error = peer.create_lobby(peer.LOBBY_TYPE_FRIENDS_ONLY, _lobby.MAX_PLAYERS)
 	if error:
+		creating = false
 		push_warning("Error creating steam lobby", error)
 		failed_to_create_or_join.emit("Failed to create a lobby")
 		return
@@ -82,3 +84,7 @@ func _on_lobby_joined(this_lobby_id: int, _permissions: int, _locked: bool, resp
 func _on_persona_change(_this_steam_id: int, _flag: int) -> void:
 	if _lobby.lobby_id == -1: return
 	_steam.get_lobby_members()
+
+
+func close_peer() -> void:
+	peer.close()

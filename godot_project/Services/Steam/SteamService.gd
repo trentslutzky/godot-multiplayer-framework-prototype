@@ -17,6 +17,7 @@ signal initialized
 signal friends_lobby_list_updated
 signal set_steam_username(steam_id: int, username: String)
 signal avatar_loaded(avatar_id: int, avatar_texture: ImageTexture)
+signal steam_networking_failed
 
 @onready var _lobby: LobbyService = LobbyService
 
@@ -29,7 +30,7 @@ func _init() -> void:
 func _ready() -> void:
 	_initialize_steam()
 	Steam.avatar_loaded.connect(_on_avatar_loaded)
-	Steam.ipc_failure.connect(_on_steam_ipc_failure)
+	Steam.network_messages_session_failed.connect(_on_steam_network_messages_session_failed)
 
 
 func _process(_delta: float) -> void:
@@ -60,8 +61,10 @@ func _initialize_steam() -> void:
 	Steam.getCertificateRequest()
 
 
-func _on_steam_ipc_failure(fail_type: int) -> void:
-	print("_on_steam_ipc_failure: ", fail_type)
+func _on_steam_network_messages_session_failed(_fail_reason: int, _remote_steam_id: int, _connection_state: int, debug_message: String) -> void:
+	push_error("_on_steam_network_messages_session_failed: ", debug_message)
+	steam_networking_failed.emit()
+	_initialize_steam()
 
 
 func get_friends_in_lobbies() -> void:
