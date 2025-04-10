@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://c5bblo8i7drqm"]
-
-[ext_resource type="Script" uid="uid://ferrw23ee0dl" path="res://UI/join_steam_friend_lobby_button.gd" id="1_5c51n"]
-
-[node name="join_steam_friend_lobby_button" type="Button"]
-script = ExtResource("1_5c51n")

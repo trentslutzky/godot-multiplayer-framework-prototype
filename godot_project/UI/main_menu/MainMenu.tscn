@@ -1,0 +1,404 @@
+[gd_scene load_steps=19 format=3 uid="uid://i5mx8cena6vj"]
+
+[ext_resource type="Theme" uid="uid://c0wako2nfxwc7" path="res://UI/lethal_theme.tres" id="1_i26rj"]
+[ext_resource type="Script" uid="uid://dbqde0o3ns3kk" path="res://UI/main_menu/main_menu.gd" id="2_afec1"]
+[ext_resource type="Texture2D" uid="uid://crmp1sstw3p27" path="res://Assets/bartol-rendulic-lunar-prison-base-2-2c.jpg" id="2_eiy7p"]
+[ext_resource type="Texture2D" uid="uid://dk1titfq8sjoc" path="res://Assets/animazione_loading/sprite_0.png" id="4_31qfy"]
+[ext_resource type="Texture2D" uid="uid://dygpuoru3i153" path="res://Assets/animazione_loading/sprite_1.png" id="5_qie43"]
+[ext_resource type="Texture2D" uid="uid://diky2qkrl47wn" path="res://Assets/animazione_loading/sprite_2.png" id="6_61cf8"]
+[ext_resource type="Texture2D" uid="uid://drvngt4c834pa" path="res://Assets/animazione_loading/sprite_3.png" id="7_rnncn"]
+[ext_resource type="Texture2D" uid="uid://c2fbm4uqetdnj" path="res://Assets/animazione_loading/sprite_4.png" id="8_3fnrj"]
+[ext_resource type="Texture2D" uid="uid://1d6m25p65slp" path="res://Assets/animazione_loading/sprite_5.png" id="9_m04lp"]
+[ext_resource type="Texture2D" uid="uid://bh4veb3hw3ott" path="res://Assets/animazione_loading/sprite_6.png" id="10_1thib"]
+[ext_resource type="Texture2D" uid="uid://bepwagpg4vy51" path="res://Assets/animazione_loading/sprite_7.png" id="11_iht1c"]
+[ext_resource type="Script" uid="uid://d1lhoj7ox6v18" path="res://UI/utils/force_animated_sprite_2d.gd" id="12_31qfy"]
+[ext_resource type="Script" uid="uid://4qgoog5udu8y" path="res://UI/main_menu/components/lobby_players_list/lobby_players_list.gd" id="13_7teur"]
+[ext_resource type="Script" uid="uid://c6bekrxur37da" path="res://UI/main_menu/lobby_menu.gd" id="13_45458"]
+[ext_resource type="PackedScene" uid="uid://4ay3xmgp055w" path="res://UI/main_menu/components/lobbies_list/lobbies_list_item.tscn" id="15_45458"]
+[ext_resource type="Script" uid="uid://c0qqbvqalgrlb" path="res://UI/main_menu/join_menu.gd" id="15_ppqxb"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_l1t4j"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_31qfy")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_qie43")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_61cf8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_rnncn")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_3fnrj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_m04lp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_1thib")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_iht1c")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_kyxe0"]
+bg_color = Color(0.0562916, 0.0562916, 0.0562916, 1)
+border_color = Color(1, 0.572549, 0, 1)
+
+[node name="MainMenu" type="Control" node_paths=PackedStringArray("menu_landing", "main_menu_host_button", "main_menu_join_button", "main_menu_quit_button", "lobby_menu", "loading", "loading_text", "join_menu", "back_button", "error_text")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_i26rj")
+script = ExtResource("2_afec1")
+menu_landing = NodePath("menu_landing")
+main_menu_host_button = NodePath("menu_landing/VBoxContainer/host_game_button")
+main_menu_join_button = NodePath("menu_landing/VBoxContainer/join_game_button")
+main_menu_quit_button = NodePath("menu_landing/VBoxContainer/quit_game_button")
+lobby_menu = NodePath("lobby_menu")
+loading = NodePath("loading")
+loading_text = NodePath("loading/loading_text")
+join_menu = NodePath("join_menu")
+back_button = NodePath("join_menu/VBoxContainer2/back_button")
+error_text = NodePath("error_text")
+
+[node name="background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="TextureRect" type="TextureRect" parent="background"]
+modulate = Color(1, 1, 1, 0.0666667)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_eiy7p")
+expand_mode = 2
+
+[node name="menu_landing" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="title" type="RichTextLabel" parent="menu_landing"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 94.0
+offset_top = 2.0
+offset_right = 3.0
+offset_bottom = 274.0
+grow_horizontal = 2
+theme_override_colors/default_color = Color(1, 0.572549, 0, 1)
+theme_override_font_sizes/normal_font_size = 150
+text = "PHOBOS"
+vertical_alignment = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="menu_landing"]
+layout_mode = 0
+offset_left = 90.0
+offset_top = 230.0
+offset_right = 434.0
+offset_bottom = 574.0
+theme_override_constants/separation = 20
+
+[node name="host_game_button" type="Button" parent="menu_landing/VBoxContainer"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+focus_mode = 0
+text = "   HOST GAME"
+alignment = 0
+
+[node name="join_game_button" type="Button" parent="menu_landing/VBoxContainer"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+focus_mode = 0
+text = "   JOIN GAME"
+alignment = 0
+
+[node name="quit_game_button" type="Button" parent="menu_landing/VBoxContainer"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+focus_mode = 0
+text = "  QUIT"
+alignment = 0
+
+[node name="loading" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="loading"]
+modulate = Color(1, 0.572549, 0, 1)
+texture_filter = 1
+position = Vector2(609, 340)
+scale = Vector2(10, 10)
+sprite_frames = SubResource("SpriteFrames_l1t4j")
+frame_progress = 0.646261
+speed_scale = -3.0
+script = ExtResource("12_31qfy")
+
+[node name="loading_text" type="RichTextLabel" parent="loading"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -446.0
+offset_top = -4.0
+offset_right = 446.0
+offset_bottom = 151.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/default_color = Color(1, 0.572549, 0, 1)
+theme_override_font_sizes/normal_font_size = 20
+text = "Creating a lobby"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="lobby_menu" type="Control" parent="." node_paths=PackedStringArray("lobby_title_label", "lobby_id_label", "players_label", "start_game_button", "close_lobby_button", "waiting_for_host_label")]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("13_45458")
+lobby_title_label = NodePath("lobby_label")
+lobby_id_label = NodePath("lobby_id_label")
+players_label = NodePath("players_label")
+start_game_button = NodePath("VBoxContainer/start_game_button")
+close_lobby_button = NodePath("VBoxContainer2/close_lobby_button")
+waiting_for_host_label = NodePath("VBoxContainer/waiting_for_host")
+
+[node name="lobby_label" type="RichTextLabel" parent="lobby_menu"]
+layout_mode = 0
+offset_left = 90.0
+offset_top = 95.0
+offset_right = 577.0
+offset_bottom = 177.0
+theme_override_colors/default_color = Color(1, 0.572549, 0, 1)
+theme_override_font_sizes/normal_font_size = 28
+text = "TrentLS'S LOBBY"
+
+[node name="lobby_id_label" type="RichTextLabel" parent="lobby_menu"]
+layout_mode = 0
+offset_left = 90.0
+offset_top = 124.0
+offset_right = 577.0
+offset_bottom = 206.0
+theme_override_colors/default_color = Color(0.23, 0.23, 0.23, 1)
+theme_override_font_sizes/normal_font_size = 16
+text = "TrentLS'S LOBBY"
+
+[node name="players_label" type="RichTextLabel" parent="lobby_menu"]
+layout_mode = 0
+offset_left = 586.0
+offset_top = 101.0
+offset_right = 1073.0
+offset_bottom = 183.0
+theme_override_colors/default_color = Color(1, 0.572549, 0, 1)
+theme_override_font_sizes/normal_font_size = 21
+text = "PLAYERS (2/8)"
+horizontal_alignment = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="lobby_menu"]
+layout_mode = 0
+offset_left = 90.0
+offset_top = 175.0
+offset_right = 387.0
+offset_bottom = 576.0
+theme_override_constants/separation = 20
+
+[node name="start_game_button" type="Button" parent="lobby_menu/VBoxContainer"]
+visible = false
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+focus_mode = 0
+text = "   START GAME"
+alignment = 0
+
+[node name="waiting_for_host" type="RichTextLabel" parent="lobby_menu/VBoxContainer"]
+visible = false
+layout_mode = 2
+text = "Waiting for the host to start the game"
+fit_content = true
+scroll_active = false
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="lobby_menu"]
+layout_mode = 0
+offset_left = 90.0
+offset_top = 517.0
+offset_right = 387.0
+offset_bottom = 918.0
+theme_override_constants/separation = 20
+
+[node name="close_lobby_button" type="Button" parent="lobby_menu/VBoxContainer2"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+focus_mode = 0
+text = "   CLOSE LOBBY"
+alignment = 0
+
+[node name="ColorRect" type="Panel" parent="lobby_menu"]
+layout_mode = 0
+offset_left = 754.0
+offset_top = 129.0
+offset_right = 1075.0
+offset_bottom = 578.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_kyxe0")
+
+[node name="lobby_players_list" type="VBoxContainer" parent="lobby_menu"]
+layout_mode = 0
+offset_left = 764.0
+offset_top = 138.0
+offset_right = 1064.0
+offset_bottom = 605.0
+script = ExtResource("13_7teur")
+
+[node name="join_menu" type="Control" parent="." node_paths=PackedStringArray("refresh_button", "lobbies_list")]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("15_ppqxb")
+refresh_button = NodePath("VBoxContainer2/refresh_button")
+lobbies_list = NodePath("ColorRect/ScrollContainer/MarginContainer/VBoxContainer")
+
+[node name="RichTextLabel" type="RichTextLabel" parent="join_menu"]
+layout_mode = 0
+offset_left = 88.0
+offset_top = 79.0
+offset_right = 681.0
+offset_bottom = 237.0
+theme_override_colors/default_color = Color(1, 0.572549, 0, 1)
+theme_override_font_sizes/normal_font_size = 40
+text = "Join a Lobby"
+
+[node name="RichTextLabel2" type="RichTextLabel" parent="join_menu"]
+layout_mode = 0
+offset_left = 482.0
+offset_top = 106.0
+offset_right = 1075.0
+offset_bottom = 264.0
+theme_override_colors/default_color = Color(1, 0.572549, 0, 1)
+theme_override_font_sizes/normal_font_size = 25
+text = "Friends' Lobbies"
+horizontal_alignment = 2
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="join_menu"]
+layout_mode = 2
+offset_left = 90.0
+offset_top = 172.0
+offset_right = 385.0
+offset_bottom = 212.0
+theme_override_constants/separation = 20
+
+[node name="refresh_button" type="Button" parent="join_menu/VBoxContainer2"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+focus_mode = 0
+text = "   REFRESH LIST"
+alignment = 0
+
+[node name="back_button" type="Button" parent="join_menu/VBoxContainer2"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+focus_mode = 0
+text = "   BACK"
+alignment = 0
+
+[node name="ColorRect" type="Panel" parent="join_menu"]
+layout_mode = 0
+offset_left = 578.0
+offset_top = 141.0
+offset_right = 1077.0
+offset_bottom = 559.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_kyxe0")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="join_menu/ColorRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="join_menu/ColorRect/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="join_menu/ColorRect/ScrollContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="lobbies_list_item" parent="join_menu/ColorRect/ScrollContainer/MarginContainer/VBoxContainer" instance=ExtResource("15_45458")]
+layout_mode = 2
+
+[node name="lobbies_list_item2" parent="join_menu/ColorRect/ScrollContainer/MarginContainer/VBoxContainer" instance=ExtResource("15_45458")]
+layout_mode = 2
+
+[node name="lobbies_list_item3" parent="join_menu/ColorRect/ScrollContainer/MarginContainer/VBoxContainer" instance=ExtResource("15_45458")]
+layout_mode = 2
+
+[node name="lobbies_list_item4" parent="join_menu/ColorRect/ScrollContainer/MarginContainer/VBoxContainer" instance=ExtResource("15_45458")]
+layout_mode = 2
+
+[node name="lobbies_list_item5" parent="join_menu/ColorRect/ScrollContainer/MarginContainer/VBoxContainer" instance=ExtResource("15_45458")]
+layout_mode = 2
+
+[node name="lobbies_list_item6" parent="join_menu/ColorRect/ScrollContainer/MarginContainer/VBoxContainer" instance=ExtResource("15_45458")]
+layout_mode = 2
+
+[node name="lobbies_list_item7" parent="join_menu/ColorRect/ScrollContainer/MarginContainer/VBoxContainer" instance=ExtResource("15_45458")]
+layout_mode = 2
+
+[node name="error_text" type="RichTextLabel" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -225.0
+offset_top = -40.0
+offset_right = 225.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/default_color = Color(1, 0.121569, 0, 1)
+text = "failed to join the lobby :("
+horizontal_alignment = 1
+vertical_alignment = 1

@@ -1,17 +1,22 @@
 extends Node
 class_name GenericLobbyHandler
 
-var peer: MultiplayerPeer
-
 var joined: bool = false
 var joining: bool = false
 var creating: bool = false
 var created: bool = false
 
+signal creating_lobby
+signal created_lobby
+signal failed_to_create_or_join(error_text: String)
+signal joining_lobby
+signal joined_lobby
+
 func reset():
 	joined = false
 	joining = false
-	peer = null
+	creating = false
+	created = false
 
 
 func create_lobby() -> void:

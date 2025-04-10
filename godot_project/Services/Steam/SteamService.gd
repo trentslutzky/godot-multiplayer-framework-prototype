@@ -1,6 +1,7 @@
 extends Node
 
 var steam_usernames: Dictionary[int, String]
+var steam_avatars: Dictionary[int, ImageTexture]
 var friends_lobby_ids: Dictionary[int, int]
 
 # Steam variables
@@ -14,6 +15,8 @@ var steam_username: String = ""
 
 signal initialized
 signal friends_lobby_list_updated
+signal set_steam_username(steam_id: int, username: String)
+signal avatar_loaded(avatar_id: int, avatar_texture: ImageTexture)
 
 @onready var _lobby := LobbyService
 
@@ -25,16 +28,16 @@ func _init() -> void:
 
 func _ready() -> void:
 	_initialize_steam()
+	Steam.avatar_loaded.connect(_on_avatar_loaded)
 
 
 func _process(_delta: float) -> void:
 	Steam.run_callbacks()
+	get_lobby_members()
 
 
 func _initialize_steam() -> void:
 	var initialize_response: Dictionary = Steam.steamInitEx()
-
-	initializing = false
 
 	if initialize_response["status"] > 0:
 		push_error("Failed to initialize Steam. Shutting down. %s" % initialize_response)
@@ -46,13 +49,15 @@ func _initialize_steam() -> void:
 	steam_id = Steam.getSteamID()
 	steam_username = Steam.getPersonaName()
 
+	Steam.getPlayerAvatar(3, steam_id)
+
 	# Check if account owns the game
 	if !is_owned:
 		push_error("User does not own this game!")
 	
+	initializing = false
 	initialized.emit()
 	Steam.getCertificateRequest()
-	get_friends_in_lobbies()
 
 
 func get_friends_in_lobbies() -> void:
@@ -77,7 +82,8 @@ func get_friends_in_lobbies() -> void:
 			results[fetched_steam_id] = lobby
 			var member_steam_name: String = Steam.getFriendPersonaName(fetched_steam_id)
 			steam_usernames[fetched_steam_id] = member_steam_name
-
+			Steam.getPlayerAvatar(3, fetched_steam_id)
+			
 	friends_lobby_ids = results
 	friends_lobby_list_updated.emit()
 
@@ -91,11 +97,18 @@ func get_lobby_members() -> void:
 		# Get the member's Steam name
 		var member_steam_name: String = Steam.getFriendPersonaName(member_steam_id)
 		# Kick off a request for the member's Steam avatar
-		Steam.getMediumFriendAvatar(member_steam_id)
-
+		Steam.getPlayerAvatar(3, member_steam_id)
+		
 		for player_peer_id in _lobby.players_data_raw:
 			if str(_lobby.players_data_raw[player_peer_id]["steam_id"]) == str(member_steam_id):
 				_lobby.players_data_raw[player_peer_id]["username"] = member_steam_name
 				_lobby.players_data[player_peer_id].username = member_steam_name
 			steam_usernames[player_peer_id] = member_steam_name
-		
+			set_steam_username.emit(player_peer_id, member_steam_name)
+
+
+func _on_avatar_loaded(avatar_id: int, size: int, data: Array):
+	var avatar_image: Image = Image.create_from_data(size, size, false, Image.FORMAT_RGBA8, data)
+	var avatar_texture: ImageTexture = ImageTexture.create_from_image(avatar_image)
+	steam_avatars.set(avatar_id, avatar_texture)
+	avatar_loaded.emit(avatar_id, avatar_texture)

@@ -1,0 +1,54 @@
+[gd_scene load_steps=4 format=3 uid="uid://rmv1kycjfc1d"]
+
+[ext_resource type="Script" uid="uid://brkraabaddse1" path="res://UI/main_menu/components/lobby_players_list/lobby_menu_player_item.gd" id="1_2s03t"]
+[ext_resource type="Texture2D" uid="uid://0r2feyfprrgf" path="res://Assets/icon.svg" id="1_e6ff7"]
+[ext_resource type="Script" uid="uid://bhffjmcyiy4ge" path="res://UI/utils/steam_avatar.gd" id="3_y3dmh"]
+
+[node name="lobby_menu_player_item" type="Button"]
+custom_minimum_size = Vector2(300, 50)
+offset_right = 8.0
+offset_bottom = 50.0
+focus_mode = 0
+script = ExtResource("1_2s03t")
+
+[node name="avatar" type="TextureRect" parent="."]
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 48.0
+offset_bottom = -2.0
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("1_e6ff7")
+expand_mode = 5
+script = ExtResource("3_y3dmh")
+
+[node name="username" type="RichTextLabel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 55.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+bbcode_enabled = true
+text = "TrentLS"
+vertical_alignment = 1
+
+[node name="host_label" type="RichTextLabel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 55.0
+offset_right = -6.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/default_color = Color(0, 0.72549, 1, 1)
+bbcode_enabled = true
+text = "HOST"
+horizontal_alignment = 2
+vertical_alignment = 1

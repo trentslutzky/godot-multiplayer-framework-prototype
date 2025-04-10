@@ -1,0 +1,51 @@
+[gd_scene load_steps=4 format=3 uid="uid://4ay3xmgp055w"]
+
+[ext_resource type="Texture2D" uid="uid://0r2feyfprrgf" path="res://Assets/icon.svg" id="1_fejdq"]
+[ext_resource type="Script" uid="uid://d0ae0qaroksyo" path="res://UI/main_menu/components/lobbies_list/lobbies_list_item.gd" id="1_uhcsd"]
+[ext_resource type="Script" uid="uid://bhffjmcyiy4ge" path="res://UI/utils/steam_avatar.gd" id="3_e5t31"]
+
+[node name="lobbies_list_item" type="MarginContainer" node_paths=PackedStringArray("steam_avatar_texture_rect", "steam_username_label", "join_button")]
+offset_right = 500.0
+offset_bottom = 70.0
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 0
+script = ExtResource("1_uhcsd")
+steam_avatar_texture_rect = NodePath("MarginContainer/HBoxContainer/steam_avatar")
+steam_username_label = NodePath("MarginContainer/HBoxContainer/steam_username")
+join_button = NodePath("MarginContainer/HBoxContainer/join_button")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 2
+color = Color(0, 0, 0, 1)
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="steam_avatar" type="TextureRect" parent="MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+texture = ExtResource("1_fejdq")
+expand_mode = 2
+script = ExtResource("3_e5t31")
+
+[node name="steam_username" type="RichTextLabel" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "TrentLS"
+vertical_alignment = 1
+
+[node name="join_button" type="Button" parent="MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(96.585, 0)
+layout_mode = 2
+focus_mode = 0
+text = "JOIN"

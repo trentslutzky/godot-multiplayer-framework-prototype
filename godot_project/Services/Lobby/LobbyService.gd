@@ -19,35 +19,42 @@ var handler: GenericLobbyHandler
 
 signal joining_lobby
 signal joined_lobby
-signal failed_to_join_lobby(error_text: String)
 signal creating_lobby
 signal created_lobby
-signal failed_to_create_lobby(error_text: String)
-
+signal lobby_error(error_text: String)
+signal players_updated(players_data:  Dictionary[int, PlayerData])
 signal connected_to_lobby
+signal left_lobby
 
 func _ready() -> void:
 	## connect signals ##
-	multiplayer.peer_disconnected.connect(_peer_disconnected)
-	multiplayer.server_disconnected.connect(_server_disconnected)
-	multiplayer.peer_connected.connect(_peer_connected)
-	_sync.synchronized.connect(_populate_player_data_objects)
-	joined_lobby.connect(_lobby_joined)
-	created_lobby.connect(_lobby_created)
-	_steam.initialized.connect(_steam_initialized)
-	
-	my_player_data.username = "player_"+str(randi_range(8000, 9000))
+	Steam.steam_server_disconnected.connect(_on_steam_server_disconnected)
+	Steam.network_connection_status_changed.connect(_on_steam_network_connection_status_changed)
+	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
+	multiplayer.server_disconnected.connect(_on_server_disconnected)
+	multiplayer.peer_connected.connect(_on_peer_connected)
+	_sync.delta_synchronized.connect(_populate_player_data_objects)
+	_steam.initialized.connect(_on_steam_initialized)
+	_steam.set_steam_username.connect(_on_steam_signal_set_steam_username)
+	my_player_data.username = "player_"+str(randi_range(1000, 9000))
 
 
-func _steam_initialized():
-	my_player_data.steam_id = SteamService.steam_id
+func _on_steam_initialized():
+	if using_steam:
+		my_player_data.steam_id = SteamService.steam_id
+		my_player_data.username = SteamService.steam_username
 	## initialize handler ##
-	handler = SteamLobbyHandler.new() if OS.has_feature("steam") else LocalLobbyHandler.new()
+	handler = SteamLobbyHandler.new() if using_steam else LocalLobbyHandler.new()
 	add_child(handler)
+	## new handler means we need to connect the signals ##
+	handler.creating_lobby.connect(_on_creating_lobby)
+	handler.created_lobby.connect(_on_lobby_created)
+	handler.failed_to_create_or_join.connect(_lobby_error)
+	handler.joining_lobby.connect(_on_joining_lobby)
+	handler.joined_lobby.connect(_on_lobby_joined)
 
 
 func _populate_player_data_objects():
-	print("_populate_player_data_objects")
 	for player_id in players_data_raw:
 		var raw_player_data = players_data_raw.get(player_id)
 		var player_data_object: PlayerData = PlayerData.deserialize(raw_player_data)
@@ -55,37 +62,62 @@ func _populate_player_data_objects():
 	for player_id in players_data:
 		if player_id not in players_data_raw.keys():
 			players_data.erase(player_id)
+	players_updated.emit(players_data)
 
 
-func _peer_disconnected(peer_id: int):
-	prints("_peer_disconnected:", peer_id)
+func _on_steam_signal_set_steam_username(steam_id: int, steam_username: String):
+	players_data[steam_id].username = steam_username
+	players_data_raw[steam_id]["username"] = steam_username
+	players_updated.emit(players_data)
+
+
+func _on_peer_disconnected(peer_id: int):
 	if not is_multiplayer_authority(): return
 	players_data_raw.erase(peer_id)
 	players_data.erase(peer_id)
+	players_updated.emit(players_data)
 
 
-func _server_disconnected():
+func _on_server_disconnected():
 	_reset()
+	left_lobby.emit()
 
 
-func _peer_connected(peer_id: int):
-	prints("_peer_connected:", peer_id)
+func _on_steam_network_connection_status_changed(connect_handle: int, connection: Dictionary, old_state: int):
+	pass
+
+
+func _on_steam_server_disconnected():
+	_reset()
+	left_lobby.emit()
+	lobby_error.emit("There was an error joining the steam lobby!")
+
+
+func _on_peer_connected(peer_id: int):
 	if peer_id == 1:
 		_register_self()
-		connected_to_lobby.emit()
+		joined_lobby.emit()
 
 
-func _lobby_created():
-	prints("_lobby_created", multiplayer.get_unique_id())
+func _on_creating_lobby():
+	creating_lobby.emit()
+
+
+func _on_lobby_created():
 	is_host = true
 	in_lobby = true
 	_register_self()
+	joined_lobby.emit()
 
 
-func _lobby_joined():
-	prints("_lobby_joined", multiplayer.get_unique_id())
+func _on_joining_lobby():
+	joining_lobby.emit()
+
+
+func _on_lobby_joined():
 	is_host = false
 	in_lobby = true
+	joined_lobby.emit()
 
 
 func _register_self():
@@ -96,6 +128,11 @@ func leave_lobby() -> void:
 	Steam.leaveLobby(lobby_id)
 	handler.peer.close()
 	_reset()
+	left_lobby.emit()
+
+
+func _lobby_error(error_text: String):
+	lobby_error.emit(error_text)
 
 
 @rpc("any_peer", "call_local", "reliable")
@@ -105,6 +142,7 @@ func _register_player(player_raw_data: Dictionary[String, Variant]):
 	new_player_data.peer_id = remote_sender_id
 	players_data_raw.set(remote_sender_id, new_player_data.serialize())
 	players_data.set(remote_sender_id, new_player_data)
+	players_updated.emit(players_data)
 	if using_steam:
 		_steam.get_lobby_members()
 
