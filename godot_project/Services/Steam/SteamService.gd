@@ -1,72 +1,72 @@
 extends Node
 
+## App ID of this game. Using 480 as the placeholder ID in testing.
+const STEAM_APP_ID: int = 480
+
+## A cache of steam_id: steam_username for all users we've fetched. We maintain a cache here so
+## that we always have a steam username anywhere we'd get back just a steam id.
 var steam_usernames: Dictionary[int, String]
+
+## A cache of steam avatars similar to steam_usernames. Save them in a variable to
+## avoid requesting a new avatar from steam whenever we need it.
 var steam_avatars: Dictionary[int, ImageTexture]
-var friends_lobby_ids: Dictionary[int, int]
 
-# Steam variables
-var initializing: bool = true
-var is_on_steam_deck: bool = false
-var is_online: bool = false
-var is_owned: bool = false
-var steam_app_id: int = 480
-var steam_id: int = -1
-var steam_username: String = ""
+var initializing: bool = true ## Is steam currently initializing
+var is_on_steam_deck: bool = false ## Is the user on steam deck
+var is_online: bool = false ## Is the user online
+var is_owned: bool = false ## Does the user own this game
+var steam_id: int = -1 ## The user's steam ID
+var steam_username: String = "" ## The user's steam username
 
-signal initialized
-signal friends_lobby_list_updated
-signal set_steam_username(steam_id: int, username: String)
-signal avatar_loaded(avatar_id: int, avatar_texture: ImageTexture)
-signal steam_networking_failed
+# SIGNALS
+signal initialized ## Called on successful initialization of steam
+signal friends_lobby_list_updated(lobby_ids: Dictionary[int, int]) ## Recieved new data on friends' lobbies
+signal got_steam_username(steam_id: int, steam_username: String) ## Recieved a new steam username for a steam user
+signal avatar_loaded(avatar_id: int, avatar_texture: ImageTexture) ## When we load a steam avatar
 
-@onready var _lobby: LobbyService = LobbyService
 
 func _init() -> void:
-	# Set your game's Steam app ID here
-	OS.set_environment("SteamAppId", str(steam_app_id))
-	OS.set_environment("SteamGameId", str(steam_app_id))
+	# Set the game's Steam app ID. Using 
+	OS.set_environment("SteamAppId", str(STEAM_APP_ID))
+	OS.set_environment("SteamGameId", str(STEAM_APP_ID))
 
 
 func _ready() -> void:
 	_initialize_steam()
-	Steam.avatar_loaded.connect(_on_avatar_loaded)
-	Steam.network_messages_session_failed.connect(_on_steam_network_messages_session_failed)
+	Steam.avatar_loaded.connect(_on_steam_avatar_loaded)
 
 
-func _process(_delta: float) -> void:
-	Steam.run_callbacks()
-
-
+# Connects to steam, ensures the user is logged in, sets some user details.
+# Must run when the game starts
 func _initialize_steam() -> void:
-	var initialize_response: Dictionary = Steam.steamInit()
+	var initialize_response: Dictionary = Steam.steamInit() # initialize steam
 
-	if initialize_response["status"] > 1:
+	if initialize_response["status"] > 1: # anything > 1 is an error state.
 		push_error("Failed to initialize Steam. Shutting down. %s" % initialize_response)
 
-	# Gather additional data
+	# Populate my steam variables
 	is_on_steam_deck = Steam.isSteamRunningOnSteamDeck()
 	is_online = Steam.loggedOn()
 	is_owned = Steam.isSubscribed()
 	steam_id = Steam.getSteamID()
 	steam_username = Steam.getPersonaName()
-
+	
+	# Go ahead and fetch this user's steam avatar
 	Steam.getPlayerAvatar(3, steam_id)
 
-	# Check if account owns the game
+	# Check if this user owns the game
 	if !is_owned:
 		push_error("User does not own this game!")
 	
+	# finish and emit signal
 	initializing = false
 	initialized.emit()
-	Steam.getCertificateRequest()
 
 
-func _on_steam_network_messages_session_failed(_fail_reason: int, _remote_steam_id: int, _connection_state: int, debug_message: String) -> void:
-	push_error("_on_steam_network_messages_session_failed: ", debug_message)
-	steam_networking_failed.emit()
-	_initialize_steam()
+func _process(_delta: float) -> void:
+	Steam.run_callbacks() # required to maintain a connection to the steam API
 
-
+## Triggers a request for friends' steam lobbies. On success, will emit signal friends_lobby_list_updated
 func get_friends_in_lobbies() -> void:
 	var results: Dictionary[int, int] = {}
 
@@ -87,35 +87,44 @@ func get_friends_in_lobbies() -> void:
 				continue
 
 			results[fetched_steam_id] = lobby
-			var member_steam_name: String = Steam.getFriendPersonaName(fetched_steam_id)
-			steam_usernames[fetched_steam_id] = member_steam_name
-			Steam.getPlayerAvatar(3, fetched_steam_id)
-			
-	friends_lobby_ids = results
-	friends_lobby_list_updated.emit()
 
-# grabs steam information for players in the steam lobby
-func get_lobby_members() -> void:
-	var num_members: int = Steam.getNumLobbyMembers(_lobby.lobby_id)
+			# if we haven't cached a steam username, fetch one
+			if not steam_usernames.has(fetched_steam_id):
+				var member_steam_name: String = Steam.getFriendPersonaName(fetched_steam_id)
+				steam_usernames[fetched_steam_id] = member_steam_name
+
+			# if we haven't cached a steam avatar, fetch one
+			if not steam_avatars.has(fetched_steam_id):
+				Steam.getPlayerAvatar(3, fetched_steam_id)
+
+	# emit signal
+	friends_lobby_list_updated.emit(results)
+
+## Fetch information on the users This will update _lobby.players_data
+func get_lobby_members(lobby_id: int) -> void:
+	var num_members: int = Steam.getNumLobbyMembers(lobby_id)
 	# Get the data of these players from Steam
 	for this_member: int in range(0, num_members):
 		# Get the member's Steam ID
-		var member_steam_id: int = Steam.getLobbyMemberByIndex(_lobby.lobby_id, this_member)
+		var member_steam_id: int = Steam.getLobbyMemberByIndex(lobby_id, this_member)
 		# Get the member's Steam name
 		var member_steam_name: String = Steam.getFriendPersonaName(member_steam_id)
 		# Kick off a request for the member's Steam avatar
 		Steam.getPlayerAvatar(3, member_steam_id)
-		
-		for player_peer_id: int in _lobby.players_data_raw:
-			if str(_lobby.players_data_raw[player_peer_id]["steam_id"]) == str(member_steam_id):
-				_lobby.players_data_raw[player_peer_id]["username"] = member_steam_name
-				_lobby.players_data[player_peer_id].username = member_steam_name
-			steam_usernames[player_peer_id] = member_steam_name
-			set_steam_username.emit(player_peer_id, member_steam_name)
+		# Emit signal
+		got_steam_username.emit(member_steam_id, member_steam_name)
+		# Cache the steam username
+		steam_usernames[member_steam_id] = member_steam_name
 
 
-func _on_avatar_loaded(avatar_id: int, size: int, data: Array) -> void:
+# connect to Steam.avatar_loaded so that we can cache steam avatars to avoid requesting them from steam
+# every time we need them.
+func _on_steam_avatar_loaded(avatar_id: int, size: int, data: Array) -> void:
+	# convert the raw data to an image
 	var avatar_image: Image = Image.create_from_data(size, size, false, Image.FORMAT_RGBA8, data)
+	# make an ImageTexture from the image
 	var avatar_texture: ImageTexture = ImageTexture.create_from_image(avatar_image)
+	# save that image in `steam_avatars`
 	steam_avatars.set(avatar_id, avatar_texture)
+	# emit signal
 	avatar_loaded.emit(avatar_id, avatar_texture)

@@ -53,3 +53,7 @@ func _process(_delta: float) -> void:
 			joined = true
 			joining = false
 			joined_lobby.emit()
+
+
+func close_peer() -> void:
+	peer.close()

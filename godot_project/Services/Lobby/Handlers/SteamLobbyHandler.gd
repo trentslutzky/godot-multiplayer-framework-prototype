@@ -45,7 +45,7 @@ func _on_lobby_created(connect_status: int, this_lobby_id: int) -> void:
 	Steam.setLobbyJoinable(this_lobby_id, true)
 	created = true
 	created_lobby.emit()
-	_steam.get_lobby_members()
+	_steam.get_lobby_members(this_lobby_id)
 	multiplayer.set_multiplayer_peer(peer)
 
 
@@ -81,9 +81,9 @@ func _on_lobby_joined(this_lobby_id: int, _permissions: int, _locked: bool, resp
 
 
 # A user's information has changed. Steam will call this periodically
-func _on_persona_change(_this_steam_id: int, _flag: int) -> void:
+func _on_persona_change(this_steam_id: int, _flag: int) -> void:
 	if _lobby.lobby_id == -1: return
-	_steam.get_lobby_members()
+	_steam.get_lobby_members(this_steam_id)
 
 
 func close_peer() -> void:

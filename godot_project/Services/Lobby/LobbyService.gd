@@ -33,7 +33,7 @@ func _ready() -> void:
 	multiplayer.peer_connected.connect(_on_peer_connected)
 	_sync.delta_synchronized.connect(_populate_player_data_objects)
 	_steam.initialized.connect(_on_steam_initialized)
-	_steam.steam_networking_failed.connect(_on_steam_networking_failed)
+	_steam.got_steam_username.connect(_on_steam_got_steam_username)
 	my_player_data.username = "player_"+str(randi_range(1000, 9000))
 	
 	## initialize handler ##
@@ -93,10 +93,6 @@ func _on_creating_lobby() -> void:
 	creating_lobby.emit()
 
 
-func _on_steam_networking_failed() -> void:
-	pass
-
-
 func _on_lobby_created() -> void:
 	is_host = true
 	in_lobby = true
@@ -119,7 +115,7 @@ func _register_self() -> void:
 
 
 func leave_lobby() -> void:
-	_im_leaving_the_match.rpc()
+	_im_leaving_the_lobby.rpc()
 	Steam.leaveLobby(lobby_id)
 	handler.close_peer()
 	_reset()
@@ -128,7 +124,7 @@ func leave_lobby() -> void:
 # seems like we need this for now because steam doesn't trigger a 
 # disconnect when you leave the lobby
 @rpc("any_peer", "call_remote", "reliable")
-func _im_leaving_the_match() -> void:
+func _im_leaving_the_lobby() -> void:
 	var peer_id: int = multiplayer.get_remote_sender_id()
 	players_data_raw.erase(peer_id)
 	players_data.erase(peer_id)
@@ -151,7 +147,15 @@ func _register_player(player_raw_data: Dictionary[String, Variant]) -> void:
 	players_data.set(remote_sender_id, new_player_data)
 	players_updated.emit(players_data)
 	if using_steam:
-		_steam.get_lobby_members()
+		_steam.get_lobby_members(lobby_id)
+
+
+func _on_steam_got_steam_username(steam_id: int, steam_username: String) -> void:
+	if not is_host: return
+	for player_id: int in players_data_raw:
+		if players_data_raw[player_id]["steam_id"] == steam_id:
+			players_data_raw[player_id]["username"] = steam_username
+			players_data[player_id].username = steam_username
 
 
 func _reset() -> void:
