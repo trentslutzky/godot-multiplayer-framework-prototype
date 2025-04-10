@@ -38,6 +38,7 @@ func _ready() -> void:
 	_lobby.creating_lobby.connect(_on_creating_lobby)
 	_lobby.joining_lobby.connect(_on_joining_lobby)
 	_lobby.joined_lobby.connect(_on_lobby_joined)
+	_lobby.created_lobby.connect(_on_lobby_joined)
 	_lobby.lobby_error.connect(_on_lobby_error)
 	_lobby.left_lobby.connect(_on_left_lobby)
 	

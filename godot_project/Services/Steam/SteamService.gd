@@ -29,11 +29,11 @@ func _init() -> void:
 func _ready() -> void:
 	_initialize_steam()
 	Steam.avatar_loaded.connect(_on_avatar_loaded)
+	Steam.ipc_failure.connect(_on_steam_ipc_failure)
 
 
 func _process(_delta: float) -> void:
 	Steam.run_callbacks()
-	get_lobby_members()
 
 
 func _initialize_steam() -> void:
@@ -58,6 +58,10 @@ func _initialize_steam() -> void:
 	initializing = false
 	initialized.emit()
 	Steam.getCertificateRequest()
+
+
+func _on_steam_ipc_failure(fail_type: int) -> void:
+	print("_on_steam_ipc_failure: ", fail_type)
 
 
 func get_friends_in_lobbies() -> void:

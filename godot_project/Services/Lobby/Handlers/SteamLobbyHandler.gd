@@ -10,7 +10,6 @@ func _ready() -> void:
 	self.name = "SteamNetworkingHandler"
 	peer.lobby_created.connect(_on_lobby_created)
 	Steam.lobby_joined.connect(_on_lobby_joined)
-	_lobby.connected_to_lobby.connect(_on_connected_to_lobby)
 
 
 func join_lobby(lobby_id_to_join: int = -1) -> void:
@@ -46,12 +45,6 @@ func _on_lobby_created(connect_status: int, this_lobby_id: int) -> void:
 	created_lobby.emit()
 	_steam.get_lobby_members()
 	multiplayer.set_multiplayer_peer(peer)
-
-
-func _on_connected_to_lobby() -> void:
-	joining = false
-	creating = false
-	_steam.get_lobby_members()
 
 
 func _on_lobby_joined(this_lobby_id: int, _permissions: int, _locked: bool, response: int) -> void:

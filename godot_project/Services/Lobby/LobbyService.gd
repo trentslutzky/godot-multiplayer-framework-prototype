@@ -23,7 +23,6 @@ signal creating_lobby
 signal created_lobby
 signal lobby_error(error_text: String)
 signal players_updated(players_data:  Dictionary[int, PlayerData])
-signal connected_to_lobby
 signal left_lobby
 
 func _ready() -> void:
@@ -34,7 +33,6 @@ func _ready() -> void:
 	multiplayer.peer_connected.connect(_on_peer_connected)
 	_sync.delta_synchronized.connect(_populate_player_data_objects)
 	_steam.initialized.connect(_on_steam_initialized)
-	_steam.set_steam_username.connect(_on_steam_signal_set_steam_username)
 	my_player_data.username = "player_"+str(randi_range(1000, 9000))
 	
 	## initialize handler ##
@@ -63,12 +61,6 @@ func _populate_player_data_objects() -> void:
 	for player_id: int in players_data:
 		if player_id not in players_data_raw.keys():
 			players_data.erase(player_id)
-	players_updated.emit(players_data)
-
-
-func _on_steam_signal_set_steam_username(steam_id: int, steam_username: String) -> void:
-	players_data[steam_id].username = steam_username
-	players_data_raw[steam_id]["username"] = steam_username
 	players_updated.emit(players_data)
 
 
@@ -104,7 +96,7 @@ func _on_lobby_created() -> void:
 	is_host = true
 	in_lobby = true
 	_register_self()
-	joined_lobby.emit()
+	created_lobby.emit()
 
 
 func _on_joining_lobby() -> void:

@@ -13,8 +13,12 @@ func serialize() -> Dictionary[String, Variant]:
 	}
 
 static func deserialize(data: Dictionary) -> PlayerData:
+	var _steam: SteamService = SteamService
 	var player_data: PlayerData = PlayerData.new()
 	player_data.peer_id = data.get("peer_id", -1)
-	player_data.username = data.get("username", "")
+	if data.get("peer_id", -1) in _steam.steam_usernames:
+		player_data.username = _steam.steam_usernames[data["peer_id"]]
+	else:
+		player_data.username = data.get("username", "")
 	player_data.steam_id = data.get("steam_id", -1)
 	return player_data
