@@ -4,12 +4,15 @@
 [ext_resource type="Texture2D" uid="uid://0r2feyfprrgf" path="res://Assets/icon.svg" id="1_e6ff7"]
 [ext_resource type="Script" uid="uid://bhffjmcyiy4ge" path="res://UI/utils/steam_avatar.gd" id="3_y3dmh"]
 
-[node name="lobby_menu_player_item" type="Button"]
+[node name="lobby_menu_player_item" type="Button" node_paths=PackedStringArray("username_label", "host_label", "avatar")]
 custom_minimum_size = Vector2(300, 50)
 offset_right = 8.0
 offset_bottom = 50.0
 focus_mode = 0
 script = ExtResource("1_2s03t")
+username_label = NodePath("username")
+host_label = NodePath("host_label")
+avatar = NodePath("avatar")
 
 [node name="avatar" type="TextureRect" parent="."]
 texture_filter = 1

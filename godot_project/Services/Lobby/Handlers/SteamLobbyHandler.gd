@@ -1,43 +1,34 @@
 extends GenericLobbyHandler
 class_name SteamLobbyHandler
 
-@onready var _lobby := LobbyService
-@onready var _steam := SteamService
+@onready var _steam: SteamService = SteamService
+@onready var _lobby: LobbyService = LobbyService
 
-@onready var peer = SteamMultiplayerPeer.new()
+@onready var peer: SteamMultiplayerPeer = SteamMultiplayerPeer.new()
 
 func _ready() -> void:
 	self.name = "SteamNetworkingHandler"
 	peer.lobby_created.connect(_on_lobby_created)
-	peer.lobby_joined.connect(_peer_lobby_joined)
 	Steam.lobby_joined.connect(_on_lobby_joined)
 	_lobby.connected_to_lobby.connect(_on_connected_to_lobby)
 
 
-func lobby_chat_update(lobby_id: int, changed_id: int, making_change_id: int, chat_state: int):
-	pass
-
-
-func join_lobby(lobby_id_to_join = -1):
+func join_lobby(lobby_id_to_join: int = -1) -> void:
 	if joining: return
 	joining = true
 	joining_lobby.emit()
-	var error = peer.connect_lobby(lobby_id_to_join)
+	var error: Error = peer.connect_lobby(lobby_id_to_join)
 	if error:
 		push_warning("Error joining steam lobby", error)
 		failed_to_create_or_join.emit("Failed to join lobby")
 		return
 
 
-func _peer_lobby_joined():
-	pass
-
-
-func create_lobby():
+func create_lobby() -> void:
 	if creating: return
 	creating = true
 	creating_lobby.emit()
-	var error = peer.create_lobby(peer.LOBBY_TYPE_FRIENDS_ONLY, _lobby.MAX_PLAYERS)
+	var error: Error = peer.create_lobby(peer.LOBBY_TYPE_FRIENDS_ONLY, _lobby.MAX_PLAYERS)
 	if error:
 		push_warning("Error creating steam lobby", error)
 		failed_to_create_or_join.emit("Failed to create a lobby")
@@ -57,7 +48,7 @@ func _on_lobby_created(connect_status: int, this_lobby_id: int) -> void:
 	multiplayer.set_multiplayer_peer(peer)
 
 
-func _on_connected_to_lobby():
+func _on_connected_to_lobby() -> void:
 	joining = false
 	creating = false
 	_steam.get_lobby_members()

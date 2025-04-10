@@ -18,7 +18,7 @@ signal friends_lobby_list_updated
 signal set_steam_username(steam_id: int, username: String)
 signal avatar_loaded(avatar_id: int, avatar_texture: ImageTexture)
 
-@onready var _lobby := LobbyService
+@onready var _lobby: LobbyService = LobbyService
 
 func _init() -> void:
 	# Set your game's Steam app ID here
@@ -39,7 +39,7 @@ func _process(_delta: float) -> void:
 func _initialize_steam() -> void:
 	var initialize_response: Dictionary = Steam.steamInit()
 
-	if initialize_response["status"] > 0:
+	if initialize_response["status"] > 1:
 		push_error("Failed to initialize Steam. Shutting down. %s" % initialize_response)
 
 	# Gather additional data
@@ -63,7 +63,7 @@ func _initialize_steam() -> void:
 func get_friends_in_lobbies() -> void:
 	var results: Dictionary[int, int] = {}
 
-	for i in range(0, Steam.getFriendCount()):
+	for i: int in range(0, Steam.getFriendCount()):
 		var fetched_steam_id: int = Steam.getFriendByIndex(i, Steam.FRIEND_FLAG_IMMEDIATE)
 		var game_info: Dictionary = Steam.getFriendGamePlayed(fetched_steam_id)
 
@@ -73,7 +73,7 @@ func get_friends_in_lobbies() -> void:
 		else:
 			# They are playing a game, check if it's the same game as ours
 			var app_id: int = game_info["id"]
-			var lobby = game_info["lobby"]
+			var lobby: Variant = game_info["lobby"]
 
 			if app_id != Steam.getAppID() or lobby is String or lobby == 0:
 				# Either not in this game, or not in a lobby
@@ -91,7 +91,7 @@ func get_friends_in_lobbies() -> void:
 func get_lobby_members() -> void:
 	var num_members: int = Steam.getNumLobbyMembers(_lobby.lobby_id)
 	# Get the data of these players from Steam
-	for this_member in range(0, num_members):
+	for this_member: int in range(0, num_members):
 		# Get the member's Steam ID
 		var member_steam_id: int = Steam.getLobbyMemberByIndex(_lobby.lobby_id, this_member)
 		# Get the member's Steam name
@@ -99,7 +99,7 @@ func get_lobby_members() -> void:
 		# Kick off a request for the member's Steam avatar
 		Steam.getPlayerAvatar(3, member_steam_id)
 		
-		for player_peer_id in _lobby.players_data_raw:
+		for player_peer_id: int in _lobby.players_data_raw:
 			if str(_lobby.players_data_raw[player_peer_id]["steam_id"]) == str(member_steam_id):
 				_lobby.players_data_raw[player_peer_id]["username"] = member_steam_name
 				_lobby.players_data[player_peer_id].username = member_steam_name
@@ -107,7 +107,7 @@ func get_lobby_members() -> void:
 			set_steam_username.emit(player_peer_id, member_steam_name)
 
 
-func _on_avatar_loaded(avatar_id: int, size: int, data: Array):
+func _on_avatar_loaded(avatar_id: int, size: int, data: Array) -> void:
 	var avatar_image: Image = Image.create_from_data(size, size, false, Image.FORMAT_RGBA8, data)
 	var avatar_texture: ImageTexture = ImageTexture.create_from_image(avatar_image)
 	steam_avatars.set(avatar_id, avatar_texture)

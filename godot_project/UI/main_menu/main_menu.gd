@@ -2,8 +2,8 @@ extends Control
 
 @export_category("Main Menu")
 @export var menu_landing: Control
-@export var main_menu_host_button: Control
-@export var main_menu_join_button: Control
+@export var main_menu_host_button: Button
+@export var main_menu_join_button: Button
 @export var main_menu_quit_button: Button
 
 @export_category("Lobby Menu")
@@ -20,8 +20,8 @@ extends Control
 @export_category("Other")
 @export var error_text: RichTextLabel
 
-@onready var _lobby := LobbyService
-@onready var _steam := SteamService
+@onready var _lobby: LobbyService = LobbyService
+@onready var _steam: SteamService= SteamService
 
 func _ready() -> void:
 	show_main_menu()
@@ -44,31 +44,31 @@ func _ready() -> void:
 	error_text.text = ""
 
 
-func _on_creating_lobby():
+func _on_creating_lobby() -> void:
 	_show_loading_screen("Creating lobby...")
 
-func _on_joining_lobby():
+func _on_joining_lobby() -> void:
 	_show_loading_screen("Joining lobby...")
 
 
-func _on_lobby_joined():
+func _on_lobby_joined() -> void:
 	_show_lobby_menu()
 
 
-func _on_left_lobby():
+func _on_left_lobby() -> void:
 	show_main_menu()
 
 
-func _on_lobby_error(error: String):
+func _on_lobby_error(error: String) -> void:
 	error_text.text = error
 	show_main_menu()
 
 
-func _on_main_menu_host_button_pressed():
+func _on_main_menu_host_button_pressed() -> void:
 	_lobby.handler.create_lobby()
 
 
-func _on_main_menu_join_button_pressed():
+func _on_main_menu_join_button_pressed() -> void:
 	if _lobby.using_steam:
 		_steam.get_friends_in_lobbies()
 		show_join_menu()
@@ -76,15 +76,15 @@ func _on_main_menu_join_button_pressed():
 		_lobby.handler.join_lobby()
 
 
-func _on_join_menu_back_button_pressed():
+func _on_join_menu_back_button_pressed() -> void:
 	show_main_menu()
 
 
-func _on_main_menu_quit_button_pressed():
+func _on_main_menu_quit_button_pressed() -> void:
 	get_tree().quit()
 
 
-func _show_loading_screen(text: String = ""):
+func _show_loading_screen(text: String = "") -> void:
 	menu_landing.visible = false
 	lobby_menu.visible = false
 	loading.visible = true
@@ -93,21 +93,21 @@ func _show_loading_screen(text: String = ""):
 	error_text.text = ""
 
 
-func _show_lobby_menu():
+func _show_lobby_menu() -> void:
 	menu_landing.visible = false
 	lobby_menu.visible = true
 	loading.visible = false
 	join_menu.visible = false
 
 
-func show_main_menu():
+func show_main_menu() -> void:
 	menu_landing.visible = true
 	lobby_menu.visible = false
 	loading.visible = false
 	join_menu.visible = false
 
 
-func show_join_menu():
+func show_join_menu() -> void:
 	menu_landing.visible = false
 	lobby_menu.visible = false
 	loading.visible = false

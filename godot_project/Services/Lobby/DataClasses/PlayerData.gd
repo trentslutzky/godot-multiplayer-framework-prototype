@@ -13,7 +13,7 @@ func serialize() -> Dictionary[String, Variant]:
 	}
 
 static func deserialize(data: Dictionary) -> PlayerData:
-	var player_data := PlayerData.new()
+	var player_data: PlayerData = PlayerData.new()
 	player_data.peer_id = data.get("peer_id", -1)
 	player_data.username = data.get("username", "")
 	player_data.steam_id = data.get("steam_id", -1)

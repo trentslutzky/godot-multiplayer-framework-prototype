@@ -1,11 +1,11 @@
 extends GenericLobbyHandler
 class_name LocalLobbyHandler
 
-const DEFAULT_SERVER_IP = "127.0.0.1"  # IPv4 localhost as a placeholder
-const PORT = 7001
+const DEFAULT_SERVER_IP: String = "127.0.0.1"  # IPv4 localhost as a placeholder
+const PORT: int = 7001
 
-@onready var _lobby := LobbyService
-@onready var peer = ENetMultiplayerPeer.new()
+@onready var _lobby: LobbyService = LobbyService
+@onready var peer: ENetMultiplayerPeer = ENetMultiplayerPeer.new()
 
 func _ready() -> void:
 	self.name = "LocalNetworkingHandler"
@@ -15,7 +15,7 @@ func create_lobby() -> void:
 	peer = ENetMultiplayerPeer.new()
 	creating_lobby.emit()
 	# init a multiplayer peer object
-	var error = peer.create_server(PORT, _lobby.MAX_PLAYERS)
+	var error: Error = peer.create_server(PORT, _lobby.MAX_PLAYERS)
 	if error:
 		if error != ERR_ALREADY_IN_USE:
 			failed_to_create_or_join.emit("There is already a local lobby running.")
@@ -26,11 +26,11 @@ func create_lobby() -> void:
 	created_lobby.emit()
 
 
-func join_lobby(_lobby_id = -1) -> void:
+func join_lobby(_lobby_id: int = -1) -> void:
 	peer = ENetMultiplayerPeer.new()
 	joining_lobby.emit()
 	# init a multiplayer peer object
-	var error = peer.create_client(DEFAULT_SERVER_IP, PORT)
+	var error: Error = peer.create_client(DEFAULT_SERVER_IP, PORT)
 	if error:
 		if error != ERR_ALREADY_IN_USE:
 			push_warning(error)
