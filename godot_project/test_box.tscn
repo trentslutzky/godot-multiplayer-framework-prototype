@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://by3g01123ouas"]
+
+[sub_resource type="GDScript" id="GDScript_mwb40"]
+script/source = "extends CSGBox3D
+"
+
+[node name="test_box" type="CSGBox3D"]
+script = SubResource("GDScript_mwb40")

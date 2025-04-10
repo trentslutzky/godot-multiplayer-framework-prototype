@@ -14,6 +14,7 @@ var handler: GenericLobbyHandler
 
 @onready var _sync: MultiplayerSynchronizer = $MultiplayerSynchronizer
 @onready var _steam: SteamService = SteamService
+@onready var _game_sequence: GameSequence = GameSequence
 
 @onready var my_player_data: PlayerData = PlayerData.new()
 
@@ -35,6 +36,7 @@ func _ready() -> void:
 	_steam.initialized.connect(_on_steam_initialized)
 	_steam.got_steam_username.connect(_on_steam_got_steam_username)
 	my_player_data.username = "player_"+str(randi_range(1000, 9000))
+	_game_sequence.game_starting.connect(_on_game_sequence_game_starting)
 	
 	## initialize handler ##
 	handler = SteamLobbyHandler.new() if using_steam else LocalLobbyHandler.new()
@@ -164,3 +166,9 @@ func _reset() -> void:
 	lobby_id = -1
 	players_data = {}
 	players_data_raw = {}
+
+
+func _on_game_sequence_game_starting() -> void:
+	if not is_host: return
+	if not using_steam: return
+	Steam.setLobbyJoinable(lobby_id, false)
