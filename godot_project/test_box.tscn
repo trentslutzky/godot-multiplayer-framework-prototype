@@ -1,8 +1,11 @@
 [gd_scene load_steps=2 format=3 uid="uid://by3g01123ouas"]
 
-[sub_resource type="GDScript" id="GDScript_mwb40"]
-script/source = "extends CSGBox3D
-"
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_rel18"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 2
 
 [node name="test_box" type="CSGBox3D"]
-script = SubResource("GDScript_mwb40")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_rel18")

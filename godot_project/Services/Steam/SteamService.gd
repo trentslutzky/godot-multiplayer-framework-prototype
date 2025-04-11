@@ -26,14 +26,14 @@ signal avatar_loaded(avatar_id: int, avatar_texture: ImageTexture) ## When we lo
 
 
 func _init() -> void:
-	if not OS.has_environment("steam"): return
+	if not OS.has_feature("steam"): return
 	# Set the game's Steam app ID. Using 
 	OS.set_environment("SteamAppId", str(STEAM_APP_ID))
 	OS.set_environment("SteamGameId", str(STEAM_APP_ID))
 
 
 func _ready() -> void:
-	if not OS.has_environment("steam"): return
+	if not OS.has_feature("steam"): return
 	_initialize_steam()
 	Steam.avatar_loaded.connect(_on_steam_avatar_loaded)
 
@@ -41,7 +41,6 @@ func _ready() -> void:
 # Connects to steam, ensures the user is logged in, sets some user details.
 # Must run when the game starts
 func _initialize_steam() -> void:
-	print("INIT STEAM")
 	var initialize_response: Dictionary = Steam.steamInit() # initialize steam
 
 	if initialize_response["status"] > 1: # anything > 1 is an error state.

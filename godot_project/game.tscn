@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://5yok28vht4uo"]
 
-[ext_resource type="PackedScene" uid="uid://by3g01123ouas" path="res://test_box.tscn" id="1_80nbo"]
+[ext_resource type="Script" uid="uid://75odj25rxlbo" path="res://test_game_root.gd" id="1_e2o6t"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_mwb40"]
 sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
@@ -15,7 +15,9 @@ sky = SubResource("Sky_80nbo")
 tonemap_mode = 2
 glow_enabled = true
 
-[node name="game" type="Node3D"]
+[node name="game" type="Node3D" node_paths=PackedStringArray("players_root_node")]
+script = ExtResource("1_e2o6t")
+players_root_node = NodePath("players")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_e2o6t")
@@ -28,10 +30,8 @@ shadow_enabled = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.31933, 0)
 current = true
 
-[node name="test_box" parent="." instance=ExtResource("1_80nbo")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -5.64518)
-script = null
+[node name="players" type="Node3D" parent="."]
 
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="players"]
 _spawnable_scenes = PackedStringArray("uid://by3g01123ouas")
 spawn_path = NodePath("..")
