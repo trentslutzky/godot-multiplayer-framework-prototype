@@ -3,10 +3,10 @@ extends Node
 signal game_starting
 signal game_started
 
-var un_stared_peers: PackedInt32Array = []
+var un_stared_peers: int = -1
 
 func host_start_game() -> void:
-	un_stared_peers = multiplayer.get_peers()
+	un_stared_peers = multiplayer.get_peers().size()
 	_start_game.rpc()
 
 
@@ -24,9 +24,7 @@ func _start_game() -> void:
 
 @rpc("any_peer", "call_remote", "reliable")
 func _scene_changed() -> void:
-	for i: int in range(un_stared_peers.size()):
-		if un_stared_peers.get(i) == multiplayer.get_remote_sender_id():
-			un_stared_peers.remove_at(i)
-	if un_stared_peers.size() == 0:
+	un_stared_peers -= 1
+	if un_stared_peers == 0:
 		_all_players_loaded()
 		return

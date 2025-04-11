@@ -15,8 +15,9 @@ sky = SubResource("Sky_80nbo")
 tonemap_mode = 2
 glow_enabled = true
 
-[node name="game" type="Node3D" node_paths=PackedStringArray("players_root_node")]
+[node name="game" type="Node3D" node_paths=PackedStringArray("player_spawner", "players_root_node")]
 script = ExtResource("1_e2o6t")
+player_spawner = NodePath("player_spawner")
 players_root_node = NodePath("players")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
@@ -26,12 +27,12 @@ environment = SubResource("Environment_e2o6t")
 transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
 shadow_enabled = true
 
-[node name="Camera3D" type="Camera3D" parent="."]
+[node name="camera" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.31933, 0)
 current = true
 
-[node name="players" type="Node3D" parent="."]
-
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="players"]
+[node name="player_spawner" type="MultiplayerSpawner" parent="."]
 _spawnable_scenes = PackedStringArray("uid://by3g01123ouas")
-spawn_path = NodePath("..")
+spawn_path = NodePath("../players")
+
+[node name="players" type="Node3D" parent="."]
