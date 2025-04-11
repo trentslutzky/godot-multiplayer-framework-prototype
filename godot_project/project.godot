@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="godot-multiplayer-framework-prototype"
-run/main_scene="uid://i5mx8cena6vj"
+run/main_scene="uid://5yok28vht4uo"
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://Assets/icon.svg"
 

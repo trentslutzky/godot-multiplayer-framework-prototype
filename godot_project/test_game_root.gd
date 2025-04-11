@@ -5,17 +5,14 @@ var test_box_scene: PackedScene = preload("res://test_box.tscn")
 
 @export var players_root_node: Node3D
 
+@onready var _game_sequence: GameSequence = GameSequence
 
 func _enter_tree() -> void:
 	player_spawner.spawn_function = spawn_player
 
 
 func _ready() -> void:
-	if not multiplayer.is_server(): return
-	
-	player_spawner.spawn(1)
-	for peer_id: int in multiplayer.get_peers():
-		player_spawner.spawn(peer_id)
+	_game_sequence.game_starting.connect(_on_game_sequence_game_starting)
 
 
 func spawn_player(peer_id: int) -> Node:
@@ -23,3 +20,10 @@ func spawn_player(peer_id: int) -> Node:
 	new_box.position = Vector3(randf_range(-9.0, 9.0), 0.0, -8.0)
 	new_box.set_multiplayer_authority(peer_id)
 	return new_box
+
+
+func _on_game_sequence_game_starting() -> void:
+	if not multiplayer.is_server(): return
+	player_spawner.spawn(1)
+	for peer_id: int in multiplayer.get_peers():
+		player_spawner.spawn(peer_id)

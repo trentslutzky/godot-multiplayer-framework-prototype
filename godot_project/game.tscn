@@ -1,6 +1,7 @@
-[gd_scene load_steps=5 format=3 uid="uid://5yok28vht4uo"]
+[gd_scene load_steps=6 format=3 uid="uid://5yok28vht4uo"]
 
 [ext_resource type="Script" uid="uid://75odj25rxlbo" path="res://test_game_root.gd" id="1_e2o6t"]
+[ext_resource type="PackedScene" uid="uid://i5mx8cena6vj" path="res://UI/main_menu/MainMenu.tscn" id="2_e2o6t"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_mwb40"]
 sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
@@ -36,3 +37,7 @@ _spawnable_scenes = PackedStringArray("uid://by3g01123ouas")
 spawn_path = NodePath("../players")
 
 [node name="players" type="Node3D" parent="."]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="MainMenu" parent="CanvasLayer" instance=ExtResource("2_e2o6t")]

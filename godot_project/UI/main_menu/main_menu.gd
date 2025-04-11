@@ -21,7 +21,8 @@ extends Control
 @export var error_text: RichTextLabel
 
 @onready var _lobby: LobbyService = LobbyService
-@onready var _steam: SteamService= SteamService
+@onready var _steam: SteamService = SteamService
+@onready var _game_sequence: GameSequence = GameSequence
 
 func _ready() -> void:
 	show_main_menu()
@@ -41,6 +42,9 @@ func _ready() -> void:
 	_lobby.created_lobby.connect(_on_lobby_joined)
 	_lobby.lobby_error.connect(_on_lobby_error)
 	_lobby.left_lobby.connect(_on_left_lobby)
+	
+	# game sequence signals
+	_game_sequence.game_starting.connect(_on_game_sequence_game_starting)
 	
 	error_text.text = ""
 
@@ -83,6 +87,10 @@ func _on_join_menu_back_button_pressed() -> void:
 
 func _on_main_menu_quit_button_pressed() -> void:
 	get_tree().quit()
+
+
+func _on_game_sequence_game_starting() -> void:
+	self.visible = false
 
 
 func _show_loading_screen(text: String = "") -> void:

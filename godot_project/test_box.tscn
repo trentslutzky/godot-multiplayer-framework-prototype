@@ -1,11 +1,22 @@
-[gd_scene load_steps=2 format=3 uid="uid://by3g01123ouas"]
+[gd_scene load_steps=3 format=3 uid="uid://by3g01123ouas"]
+
+[ext_resource type="Script" uid="uid://dmpcvxnnebrox" path="res://test_box.gd" id="1_juvch"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_rel18"]
 properties/0/path = NodePath(".:position")
 properties/0/spawn = true
 properties/0/replication_mode = 2
 
-[node name="test_box" type="CSGBox3D"]
+[node name="test_box" type="CSGBox3D" node_paths=PackedStringArray("username_label")]
+script = ExtResource("1_juvch")
+username_label = NodePath("username_label")
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_rel18")
+
+[node name="username_label" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.07691, 0)
+billboard = 1
+text = "player_username"
+font_size = 80
+outline_size = 30
