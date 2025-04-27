@@ -20,4 +20,4 @@ func _ready() -> void:
 
 
 func _on_join_button_pressed() -> void:
-	_lobby.handler.join_lobby(lobby_id)
+	_lobby.join_lobby(lobby_id)

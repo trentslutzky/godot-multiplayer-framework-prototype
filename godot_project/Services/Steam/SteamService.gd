@@ -1,4 +1,23 @@
 extends Node
+## SteamService
+##
+## Handles the initial connection to ths steam API, checks whether the steam user is logged in
+## and owns the game. This will run whenever the game is launched with the "steam" feature tag.
+##
+## Also includes some auxillary steam functions such as loading friends' lobbies, Loading steam
+## avatars, etc.
+##
+## @tutorial: https://godotsteam.com/classes/main/
+
+# SIGNALS
+## Recieved new data on friends' lobbies
+signal initialized
+## Recieved new data on friends' lobbies
+signal friends_lobby_list_updated(lobby_ids: Dictionary[int, int])
+## Recieved a new steam username for a steam user
+signal got_steam_username(steam_id: int, steam_username: String)
+## When we load a steam avatar
+signal avatar_loaded(avatar_id: int, avatar_texture: ImageTexture)
 
 ## App ID of this game. Using 480 as the placeholder ID in testing.
 const STEAM_APP_ID: int = 480
@@ -11,29 +30,25 @@ var steam_usernames: Dictionary[int, String]
 ## avoid requesting a new avatar from steam whenever we need it.
 var steam_avatars: Dictionary[int, ImageTexture]
 
-var initializing: bool = true ## Is steam currently initializing
-var is_on_steam_deck: bool = false ## Is the user on steam deck
-var is_online: bool = false ## Is the user online
-var is_owned: bool = false ## Does the user own this game
-var steam_id: int = -1 ## The user's steam ID
-var steam_username: String = "" ## The user's steam username
-
-# SIGNALS
-signal initialized ## Called on successful initialization of steam
-signal friends_lobby_list_updated(lobby_ids: Dictionary[int, int]) ## Recieved new data on friends' lobbies
-signal got_steam_username(steam_id: int, steam_username: String) ## Recieved a new steam username for a steam user
-signal avatar_loaded(avatar_id: int, avatar_texture: ImageTexture) ## When we load a steam avatar
+var initializing: bool = true  ## Is steam currently initializing
+var is_on_steam_deck: bool = false  ## Is the user on steam deck
+var is_online: bool = false  ## Is the user online
+var is_owned: bool = false  ## Does the user own this game
+var steam_id: int = -1  ## The user's steam ID
+var steam_username: String = ""  ## The user's steam username
 
 
 func _init() -> void:
-	if not OS.has_feature("steam"): return
-	# Set the game's Steam app ID. Using 
+	if not OS.has_feature("steam"):
+		return
+	# Set the game's Steam app ID. Using
 	OS.set_environment("SteamAppId", str(STEAM_APP_ID))
 	OS.set_environment("SteamGameId", str(STEAM_APP_ID))
 
 
 func _ready() -> void:
-	if not OS.has_feature("steam"): return
+	if not OS.has_feature("steam"):
+		return
 	_initialize_steam()
 	Steam.avatar_loaded.connect(_on_steam_avatar_loaded)
 
@@ -41,10 +56,11 @@ func _ready() -> void:
 # Connects to steam, ensures the user is logged in, sets some user details.
 # Must run when the game starts
 func _initialize_steam() -> void:
-	var initialize_response: Dictionary = Steam.steamInit() # initialize steam
+	var initialize_response: Dictionary = Steam.steamInit()  # initialize steam
 
-	if initialize_response["status"] > 1: # anything > 1 is an error state.
+	if initialize_response["status"] > 1:  # anything > 1 is an error state.
 		push_error("Failed to initialize Steam. Shutting down. %s" % initialize_response)
+		get_tree().quit()  # quit here since if we can't connec to steam something is broken
 
 	# Populate my steam variables
 	is_on_steam_deck = Steam.isSteamRunningOnSteamDeck()
@@ -52,24 +68,28 @@ func _initialize_steam() -> void:
 	is_owned = Steam.isSubscribed()
 	steam_id = Steam.getSteamID()
 	steam_username = Steam.getPersonaName()
-	
+
 	# Go ahead and fetch this user's steam avatar
 	Steam.getPlayerAvatar(3, steam_id)
 
-	# Check if this user owns the game
-	if !is_owned:
+	# Check if this user owns the game.
+	# in a real release we'd want to quit here
+	if !is_owned and OS.has_feature("release"):
 		push_error("User does not own this game!")
-	
+		get_tree().quit()
+
 	# finish and emit signal
 	initializing = false
 	initialized.emit()
 
 
 func _process(_delta: float) -> void:
-	if not initialized: return
-	Steam.run_callbacks() # required to maintain a connection to the steam API
+	if not initialized:
+		return
+	Steam.run_callbacks()  # required to maintain a connection to the steam API
 
-## Triggers a request for friends' steam lobbies. On success, will emit signal friends_lobby_list_updated
+
+## Triggers a request for friends' steam lobbies. On success, will emit friends_lobby_list_updated.
 func get_friends_in_lobbies() -> void:
 	var results: Dictionary[int, int] = {}
 
@@ -103,6 +123,7 @@ func get_friends_in_lobbies() -> void:
 	# emit signal
 	friends_lobby_list_updated.emit(results)
 
+
 ## Fetch information on the users This will update _lobby.players_data
 func get_lobby_members(lobby_id: int) -> void:
 	var num_members: int = Steam.getNumLobbyMembers(lobby_id)
@@ -120,8 +141,8 @@ func get_lobby_members(lobby_id: int) -> void:
 		steam_usernames[member_steam_id] = member_steam_name
 
 
-# connect to Steam.avatar_loaded so that we can cache steam avatars to avoid requesting them from steam
-# every time we need them.
+# connect to Steam.avatar_loaded so that we can cache steam avatars to avoid
+# requesting them from steam every time we need them.
 func _on_steam_avatar_loaded(avatar_id: int, size: int, data: Array) -> void:
 	# convert the raw data to an image
 	var avatar_image: Image = Image.create_from_data(size, size, false, Image.FORMAT_RGBA8, data)

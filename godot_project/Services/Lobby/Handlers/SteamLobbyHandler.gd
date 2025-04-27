@@ -13,24 +13,24 @@ func _ready() -> void:
 
 
 func join_lobby(lobby_id_to_join: int = -1) -> void:
-	if joining: return
-	joining = true
+	if _joining: return
+	_joining = true
 	joining_lobby.emit()
 	var error: Error = peer.connect_lobby(lobby_id_to_join)
 	if error:
-		joining = false
+		_joining = false
 		push_warning("Error joining steam lobby", error)
 		failed_to_create_or_join.emit("Failed to join lobby")
 		return
 
 
 func create_lobby() -> void:
-	if creating: return
-	creating = true
+	if _creating: return
+	_creating = true
 	creating_lobby.emit()
 	var error: Error = peer.create_lobby(peer.LOBBY_TYPE_FRIENDS_ONLY, _lobby.MAX_PLAYERS)
 	if error:
-		creating = false
+		_creating = false
 		push_warning("Error creating steam lobby", error)
 		failed_to_create_or_join.emit("Failed to create a lobby")
 		return
@@ -38,25 +38,25 @@ func create_lobby() -> void:
 
 
 func _on_lobby_created(connect_status: int, this_lobby_id: int) -> void:
-	creating = false
+	_creating = false
 	if connect_status != 1: return
-	_lobby.lobby_id = this_lobby_id
+	lobby_id = this_lobby_id
 	peer.set_lobby_joinable(true)
 	Steam.setLobbyJoinable(this_lobby_id, true)
-	created = true
+	_created = true
 	created_lobby.emit()
 	_steam.get_lobby_members(this_lobby_id)
 	multiplayer.set_multiplayer_peer(peer)
 
 
 func _on_lobby_joined(this_lobby_id: int, _permissions: int, _locked: bool, response: int) -> void:
-	joining = false
-	creating = false
+	_joining = false
+	_creating = false
 	## If joining was successful
 	if response == Steam.CHAT_ROOM_ENTER_RESPONSE_SUCCESS:
 		
 		multiplayer.set_multiplayer_peer(peer)
-		_lobby.lobby_id = this_lobby_id
+		lobby_id = this_lobby_id
 	else:
 		# Get the failure reason
 		var fail_reason: String
@@ -73,10 +73,10 @@ func _on_lobby_joined(this_lobby_id: int, _permissions: int, _locked: bool, resp
 			Steam.CHAT_ROOM_ENTER_RESPONSE_MEMBER_BLOCKED_YOU: fail_reason = "A user in the lobby has blocked you from joining."
 			Steam.CHAT_ROOM_ENTER_RESPONSE_YOU_BLOCKED_MEMBER: fail_reason = "A user you have blocked is in the lobby."
 		
-		if joining:
+		if _joining:
 			failed_to_create_or_join.emit(fail_reason)
 			
-		if creating:
+		if _creating:
 			failed_to_create_or_join.emit(fail_reason)
 
 
@@ -87,4 +87,6 @@ func _on_persona_change(this_steam_id: int, _flag: int) -> void:
 
 
 func close_peer() -> void:
+	Steam.leaveLobby(lobby_id)
+	lobby_id = -1
 	peer.close()

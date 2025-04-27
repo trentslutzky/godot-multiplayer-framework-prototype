@@ -6,7 +6,7 @@ extends CSGBox3D
 
 
 func _ready() -> void:
-	username_label.text = _lobby.players_data.get(get_multiplayer_authority()).get("username")
+	username_label.text = _lobby.players.get(get_multiplayer_authority()).get("username")
 
 
 func _process(_delta: float) -> void:

@@ -16,7 +16,7 @@ func _ready() -> void:
 	# lobby signals
 	_lobby.joined_lobby.connect(_on_lobby_joined)
 	_lobby.created_lobby.connect(_on_lobby_created)
-	_lobby.players_updated.connect(_on_lobby_players_updated)
+	_lobby.players_changed.connect(_on_lobby_players_changed)
 	waiting_for_host_label.visible = false
 
 
@@ -25,20 +25,18 @@ func _on_close_lobby_button_pressed() -> void:
 
 
 func _on_lobby_joined() -> void:
-	lobby_id_label.text = str(_lobby.lobby_id) if _lobby.lobby_id != -1 else ""
 	start_game_button.visible = false
 	close_lobby_button.text = "  LEAVE LOBBY"
 	waiting_for_host_label.visible = true
 
 
 func _on_lobby_created() -> void:
-	lobby_id_label.text = str(_lobby.lobby_id) if _lobby.lobby_id != -1 else ""
 	start_game_button.visible = true
 	close_lobby_button.text = "  CLOSE LOBBY"
 	waiting_for_host_label.visible = false
 
 
-func _on_lobby_players_updated(players_data: Dictionary[int, PlayerData]) -> void:
+func _on_lobby_players_changed(players_data: Dictionary[int, PlayerData]) -> void:
 	if players_data.has(1):
 		lobby_title_label.text = players_data[1].username + "'s LOBBY"
 	else:

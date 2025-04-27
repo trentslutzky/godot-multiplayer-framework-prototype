@@ -1,59 +1,63 @@
-extends GenericLobbyHandler
 class_name LocalLobbyHandler
+extends GenericLobbyHandler
 
-const DEFAULT_SERVER_IP: String = "127.0.0.1"  # IPv4 localhost as a placeholder
+# IPv4 localhost as a placeholder
+const DEFAULT_SERVER_IP: String = "127.0.0.1"
+# Port can be anything. set to 7001 to not interfere
 const PORT: int = 7001
 
+# Local instance of the lobby service
 @onready var _lobby: LobbyService = LobbyService
-@onready var peer: ENetMultiplayerPeer = ENetMultiplayerPeer.new()
+
+# The multiplayer peer for this handler
+@onready var _peer: ENetMultiplayerPeer
+
 
 func _ready() -> void:
+	# set the name so that we can see what the handler is in the tree
 	self.name = "LocalNetworkingHandler"
 
-# starts a lobby (using localhost)
+
+## Attempt creating a lobby (using localhost)
 func create_lobby() -> void:
-	peer = ENetMultiplayerPeer.new()
+	# emit the creating lobby signal
 	creating_lobby.emit()
-	# init a multiplayer peer object
-	var error: Error = peer.create_server(PORT, _lobby.MAX_PLAYERS)
+	# Initialize the peer
+	_peer = ENetMultiplayerPeer.new()
+	# Create a server and error out if there's an error
+	var error: Error = _peer.create_server(PORT, _lobby.MAX_PLAYERS)
 	if error:
-		if error != ERR_ALREADY_IN_USE:
-			failed_to_create_or_join.emit("There is already a local lobby running.")
-			reset()
-			return
+		failed_to_create_or_join.emit("could_not_join", "Couldn't create a lobby. Error " + str(error))
+		reset()
+		return
 	# set the local peer to initialized peer
-	multiplayer.multiplayer_peer = peer
+	multiplayer.multiplayer_peer = _peer
+	# emit the created lobby signal
 	created_lobby.emit()
 
 
+## Attemt to join the local lobby
 func join_lobby(_lobby_id: int = -1) -> void:
-	peer = ENetMultiplayerPeer.new()
+	# emit thejoining_lobby signal
 	joining_lobby.emit()
-	# init a multiplayer peer object
-	var error: Error = peer.create_client(DEFAULT_SERVER_IP, PORT)
+	# Initialize the peer
+	_peer = ENetMultiplayerPeer.new()
+	# Try to join a lobby and error out if there's an error
+	var error: Error = _peer.create_client(DEFAULT_SERVER_IP, PORT)
 	if error:
-		if error != ERR_ALREADY_IN_USE:
-			push_warning(error)
-			failed_to_create_or_join.emit(error)
-			return
-	multiplayer.multiplayer_peer = peer
-	joining = true
+		failed_to_create_or_join.emit(error)
+		reset()
+		return
+	# set the local peer to initialized peer
+	multiplayer.multiplayer_peer = _peer
 	# if we haven't connected after a second, that means a server
 	# probably isn't running.
 	await get_tree().create_timer(1.0).timeout
-	if joining:
-		if peer.get_connection_status() != 2:
-			failed_to_create_or_join.emit("There isn't a local lobby running.")
-			reset()
+	if _peer.get_connection_status() != 2:
+		failed_to_create_or_join.emit("no_lobby", "There isn't a local lobby running.")
+		reset()
 
-
-func _process(_delta: float) -> void:
-	if not joined and joining and not created:
-		if peer.get_connection_status() == 2:
-			joined = true
-			joining = false
-			joined_lobby.emit()
-
-
+## Closes the handler's multiplayer peer
 func close_peer() -> void:
-	peer.close()
+	_peer.close()
+	reset()

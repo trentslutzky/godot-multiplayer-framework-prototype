@@ -70,15 +70,15 @@ func _on_lobby_error(error: String) -> void:
 
 
 func _on_main_menu_host_button_pressed() -> void:
-	_lobby.handler.create_lobby()
+	_lobby.create_lobby()
 
 
 func _on_main_menu_join_button_pressed() -> void:
-	if _lobby.using_steam:
+	if OS.has_feature("steam"):
 		_steam.get_friends_in_lobbies()
 		show_join_menu()
 	else:
-		_lobby.handler.join_lobby()
+		_lobby.join_lobby()
 
 
 func _on_join_menu_back_button_pressed() -> void:

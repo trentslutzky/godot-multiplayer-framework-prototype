@@ -21,6 +21,10 @@ script = ExtResource("1_e2o6t")
 player_spawner = NodePath("player_spawner")
 players_root_node = NodePath("players")
 
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="MainMenu" parent="CanvasLayer" instance=ExtResource("2_e2o6t")]
+
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_e2o6t")
 
@@ -37,7 +41,3 @@ _spawnable_scenes = PackedStringArray("uid://by3g01123ouas")
 spawn_path = NodePath("../players")
 
 [node name="players" type="Node3D" parent="."]
-
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
-
-[node name="MainMenu" parent="CanvasLayer" instance=ExtResource("2_e2o6t")]

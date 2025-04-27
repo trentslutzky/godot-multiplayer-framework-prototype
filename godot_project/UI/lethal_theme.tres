@@ -1,4 +1,6 @@
-[gd_resource type="Theme" load_steps=5 format=3 uid="uid://c0wako2nfxwc7"]
+[gd_resource type="Theme" load_steps=6 format=3 uid="uid://c0wako2nfxwc7"]
+
+[ext_resource type="FontFile" uid="uid://b1i8a4yvlbyjb" path="res://common/fonts/Orbitron-VariableFont_wght.ttf" id="1_c7lkh"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sbj5u"]
 bg_color = Color(1, 0.572549, 0, 1)
@@ -15,6 +17,8 @@ bg_color = Color(1, 0.572549, 0, 0.419608)
 bg_color = Color(0, 0, 0, 1)
 
 [resource]
+default_font = ExtResource("1_c7lkh")
+default_font_size = 15
 Button/colors/font_color = Color(1, 0.572549, 0, 1)
 Button/colors/font_hover_color = Color(0, 0, 0, 1)
 Button/colors/font_pressed_color = Color(1, 0.572549, 0, 1)
